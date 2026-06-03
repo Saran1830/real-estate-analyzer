@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -27,7 +28,7 @@ class ComplianceControllerTest {
     // potentially-null, so every test body stays readable without per-call requireNonNull.
     private static final MediaType JSON = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
-    private String json(Object o) throws Exception {
+    private @NonNull String json(Object o) throws Exception {
         return Objects.requireNonNull(objectMapper.writeValueAsString(o));
     }
 

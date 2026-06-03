@@ -1,0 +1,142 @@
+[
+  {
+    "id": "tc-001",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.",
+    "question": "What happens if the buyer fails to close on the agreed date?",
+    "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money."
+  },
+  {
+    "id": "tc-002",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "Buyer may assign this Agreement to any third party without Seller's consent.",
+    "question": "Can the buyer assign this contract to someone else?",
+    "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements."
+  },
+  {
+    "id": "tc-003",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.",
+    "question": "Does the seller provide any warranties about the property condition?",
+    "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property."
+  },
+  {
+    "id": "tc-004",
+    "document_type": "loan_agreement",
+    "document_excerpt": "The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.",
+    "question": "What is the interest rate on the loan?",
+    "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance."
+  },
+  {
+    "id": "tc-005",
+    "document_type": "loan_agreement",
+    "document_excerpt": "Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.",
+    "question": "What are the consequences of defaulting on the loan?",
+    "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust)."
+  },
+  {
+    "id": "tc-006",
+    "document_type": "loan_agreement",
+    "document_excerpt": "Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.",
+    "question": "Is there a prepayment penalty?",
+    "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest."
+  },
+  {
+    "id": "tc-007",
+    "document_type": "loan_agreement",
+    "document_excerpt": "Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.",
+    "question": "When is the origination fee paid and how much is it?",
+    "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount."
+  },
+  {
+    "id": "tc-008",
+    "document_type": "letter_of_intent",
+    "document_excerpt": "During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.",
+    "question": "Is there an exclusivity period in the LOI?",
+    "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property."
+  },
+  {
+    "id": "tc-009",
+    "document_type": "letter_of_intent",
+    "document_excerpt": "This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.",
+    "question": "Is the LOI legally binding?",
+    "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed."
+  },
+  {
+    "id": "tc-010",
+    "document_type": "letter_of_intent",
+    "document_excerpt": "This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.",
+    "question": "What financing contingency does the buyer have?",
+    "ground_truth": "The offer is contingent on the buyer obtaining financing on terms satisfactory to the buyer at the buyer's sole discretion. This gives the buyer broad authority to walk away if they cannot secure acceptable financing."
+  },
+  {
+    "id": "tc-011",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.",
+    "question": "How are disputes resolved under this agreement?",
+    "ground_truth": "Disputes are resolved through binding arbitration in Dallas County, Texas, governed by AAA Commercial Rules. This means the parties cannot sue in court — they must use arbitration."
+  },
+  {
+    "id": "tc-012",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.",
+    "question": "What type of deed will the seller provide?",
+    "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement."
+  },
+  {
+    "id": "tc-013",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.",
+    "question": "How long does the buyer have to inspect the property?",
+    "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money."
+  },
+  {
+    "id": "tc-014",
+    "document_type": "loan_agreement",
+    "document_excerpt": "The principals of Borrower personally guarantee repayment of this Loan.",
+    "question": "Who is personally liable for repaying the loan?",
+    "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets."
+  },
+  {
+    "id": "tc-015",
+    "document_type": "loan_agreement",
+    "document_excerpt": "The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.",
+    "question": "When does the loan mature and can it be extended?",
+    "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic — any extension requires the lender's written consent."
+  },
+  {
+    "id": "tc-016",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "Earnest Money Deposit of $5,000 due within 3 business days of execution",
+    "question": "How much is the earnest money and when is it due?",
+    "ground_truth": "The earnest money deposit is $5,000, due within 3 business days of executing the agreement."
+  },
+  {
+    "id": "tc-017",
+    "document_type": "letter_of_intent",
+    "document_excerpt": "Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.",
+    "question": "What can the buyer do during the due diligence period?",
+    "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments."
+  },
+  {
+    "id": "tc-018",
+    "document_type": "loan_agreement",
+    "document_excerpt": "Borrower shall not place any additional liens on the Property without Lender's prior written consent.",
+    "question": "Can the borrower place additional liens on the property?",
+    "ground_truth": "No. The borrower cannot place any additional liens on the property without obtaining the lender's prior written consent. Doing so would constitute a default."
+  },
+  {
+    "id": "tc-019",
+    "document_type": "wholesale_purchase_agreement",
+    "document_excerpt": "If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+    "question": "What remedies does the buyer have if the seller fails to close?",
+    "ground_truth": "If the seller fails to close, the buyer can either seek specific performance (court order forcing the sale) or receive the earnest money returned plus $2,500 as liquidated damages."
+  },
+  {
+    "id": "tc-020",
+    "document_type": "letter_of_intent",
+    "document_excerpt": "The terms of this LOI shall remain confidential.",
+    "question": "Are the LOI terms confidential?",
+    "ground_truth": "Yes. The terms of the LOI are confidential and cannot be disclosed to third parties."
+  }
+]

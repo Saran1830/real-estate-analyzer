@@ -1,0 +1,10 @@
+{
+  "mode": "reranked",
+  "timestamp": "2025-03-01T15:04:00Z",
+  "scores": {
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.83,
+    "evaluated_count": 20
+  },
+  "note": "Run with rag.rerank.enabled=true (default). Top-20 cosine retrieval followed by Cohere rerank-english-v3.0, top-5 re-ranked chunks passed to GPT-4o. 9-point faithfulness improvement driven by Cohere cross-encoder surfacing penalty and default clauses that cosine similarity ranked below topically broader chunks."
+}

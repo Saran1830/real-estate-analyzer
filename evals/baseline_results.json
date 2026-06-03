@@ -1,0 +1,10 @@
+{
+  "mode": "baseline",
+  "timestamp": "2025-03-01T14:22:00Z",
+  "scores": {
+    "faithfulness": 0.76,
+    "answer_relevancy": 0.81,
+    "evaluated_count": 20
+  },
+  "note": "Run with rag.rerank.enabled=false (RERANK_ENABLED=false). Cosine similarity retrieval only, top-5 chunks passed to GPT-4o."
+}

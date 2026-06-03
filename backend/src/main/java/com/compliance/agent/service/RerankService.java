@@ -1,0 +1,124 @@
+package com.compliance.agent.service;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingMatch;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Slf4j
+public class RerankService {
+
+    private final WebClient webClient;
+
+    @Value("${cohere.api.key:}")
+    private String cohereApiKey;
+
+    @Value("${cohere.model}")
+    private String cohereModel;
+
+    @Value("${cohere.base.url}")
+    private String cohereBaseUrl;
+
+    @Value("${rag.rerank.enabled}")
+    private boolean rerankEnabled;
+
+    public RerankService(WebClient webClient) {
+        this.webClient = webClient;
+    }
+
+    @SuppressWarnings("null") // Map.of() and String fields are always non-null; IDE type-inference limitation
+    public List<RankedMatch> rerank(String query, List<EmbeddingMatch<TextSegment>> candidates, int topN) {
+        if (!rerankEnabled || cohereApiKey.isBlank()) {
+            log.debug("Rerank skipped (enabled={}, keySet={}); using top-N cosine", rerankEnabled, !cohereApiKey.isBlank());
+            return toRankedFallback(candidates, topN);
+        }
+
+        List<String> docs = candidates.stream()
+                .map(m -> m.embedded().text())
+                .toList();
+
+        Map<String, Object> body = Map.of(
+                "model", cohereModel,
+                "query", query,
+                "documents", docs,
+                "top_n", topN
+        );
+
+        try {
+            CohereRerankResponse response = webClient.post()
+                    .uri(cohereBaseUrl)
+                    .header("Authorization", "Bearer " + cohereApiKey)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(CohereRerankResponse.class)
+                    .timeout(Duration.ofSeconds(10))
+                    .block();
+
+            if (response == null || response.results() == null || response.results().isEmpty()) {
+                log.warn("Empty Cohere response; falling back to cosine ranking");
+                return toRankedFallback(candidates, topN);
+            }
+
+            List<RankedMatch> ranked = new ArrayList<>();
+            for (CohereResult result : response.results()) {
+                EmbeddingMatch<TextSegment> original = candidates.get(result.index());
+                ranked.add(new RankedMatch(
+                        original,
+                        result.index(),
+                        original.score(),
+                        result.relevanceScore()
+                ));
+            }
+            ranked.sort(Comparator.comparingDouble(RankedMatch::rerankScore).reversed());
+            log.debug("Reranked {} candidates to top-{}", candidates.size(), topN);
+            return ranked;
+
+        } catch (Exception e) {
+            log.warn("Cohere rerank failed: {}; falling back to cosine ranking", e.getMessage());
+            return toRankedFallback(candidates, topN);
+        }
+    }
+
+    private List<RankedMatch> toRankedFallback(List<EmbeddingMatch<TextSegment>> candidates, int topN) {
+        return candidates.stream()
+                .limit(topN)
+                .map(m -> new RankedMatch(m, candidates.indexOf(m), m.score(), m.score()))
+                .toList();
+    }
+
+    public record RankedMatch(
+            EmbeddingMatch<TextSegment> match,
+            int originalIndex,
+            double cosineScore,
+            double rerankScore
+    ) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record CohereRerankResponse(List<CohereResult> results) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record CohereResult(int index, double relevanceScore) {
+        CohereResult {
+            // Jackson uses snake_case via @JsonProperty; handled below
+        }
+
+        @com.fasterxml.jackson.annotation.JsonCreator
+        static CohereResult fromJson(
+                @com.fasterxml.jackson.annotation.JsonProperty("index") int index,
+                @com.fasterxml.jackson.annotation.JsonProperty("relevance_score") double relevanceScore
+        ) {
+            return new CohereResult(index, relevanceScore);
+        }
+    }
+}

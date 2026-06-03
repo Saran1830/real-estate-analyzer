@@ -11,34 +11,49 @@ import java.time.Duration;
 @Configuration
 public class LangChainConfig {
 
-    @Value("${openai.api.key}")
-    private String openAiApiKey;
+    @Value("${llm.api.key}")
+    private String llmApiKey;
 
-    @Value("${openai.chat.model}")
-    private String chatModel;
+    @Value("${llm.base-url:}")
+    private String llmBaseUrl;
 
-    @Value("${openai.embedding.model}")
+    @Value("${llm.model}")
+    private String llmModel;
+
+    @Value("${llm.temperature}")
+    private double llmTemperature;
+
+    @Value("${embedding.api.key}")
+    private String embeddingApiKey;
+
+    @Value("${embedding.base-url:}")
+    private String embeddingBaseUrl;
+
+    @Value("${embedding.model}")
     private String embeddingModel;
-
-    @Value("${openai.temperature}")
-    private double temperature;
 
     @Bean
     public OpenAiChatModel openAiChatModel() {
-        return OpenAiChatModel.builder()
-                .apiKey(openAiApiKey)
-                .modelName(chatModel)
-                .temperature(temperature)
-                .timeout(Duration.ofSeconds(60))
-                .build();
+        var builder = OpenAiChatModel.builder()
+                .apiKey(llmApiKey)
+                .modelName(llmModel)
+                .temperature(llmTemperature)
+                .timeout(Duration.ofSeconds(60));
+        if (!llmBaseUrl.isBlank()) {
+            builder.baseUrl(llmBaseUrl);
+        }
+        return builder.build();
     }
 
     @Bean
     public OpenAiEmbeddingModel openAiEmbeddingModel() {
-        return OpenAiEmbeddingModel.builder()
-                .apiKey(openAiApiKey)
+        var builder = OpenAiEmbeddingModel.builder()
+                .apiKey(embeddingApiKey)
                 .modelName(embeddingModel)
-                .timeout(Duration.ofSeconds(30))
-                .build();
+                .timeout(Duration.ofSeconds(30));
+        if (!embeddingBaseUrl.isBlank()) {
+            builder.baseUrl(embeddingBaseUrl);
+        }
+        return builder.build();
     }
 }

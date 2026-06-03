@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -36,7 +37,6 @@ public class RerankService {
         this.webClient = webClient;
     }
 
-    @SuppressWarnings("null") // Map.of() and String fields are always non-null; IDE type-inference limitation
     public List<RankedMatch> rerank(String query, List<EmbeddingMatch<TextSegment>> candidates, int topN) {
         if (!rerankEnabled || cohereApiKey.isBlank()) {
             log.debug("Rerank skipped (enabled={}, keySet={}); using top-N cosine", rerankEnabled, !cohereApiKey.isBlank());
@@ -56,10 +56,10 @@ public class RerankService {
 
         try {
             CohereRerankResponse response = webClient.post()
-                    .uri(cohereBaseUrl)
+                    .uri(Objects.requireNonNull(cohereBaseUrl))
                     .header("Authorization", "Bearer " + cohereApiKey)
                     .header("Content-Type", "application/json")
-                    .bodyValue(body)
+                    .bodyValue(Objects.requireNonNull(body))
                     .retrieve()
                     .bodyToMono(CohereRerankResponse.class)
                     .timeout(Duration.ofSeconds(10))

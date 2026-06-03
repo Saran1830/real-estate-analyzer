@@ -39,5 +39,6 @@ export async function askQuestion(
 }
 
 export async function clearSession(sessionId: string): Promise<void> {
-  await fetch(`${BASE}/api/compliance/session/${sessionId}`, { method: "DELETE" });
+  // Fire-and-forget cleanup — swallow errors so callers are never blocked
+  await fetch(`${BASE}/api/compliance/session/${sessionId}`, { method: "DELETE" }).catch(() => {});
 }

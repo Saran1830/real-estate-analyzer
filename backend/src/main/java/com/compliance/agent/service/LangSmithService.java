@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -56,13 +57,12 @@ public class LangSmithService {
         }
     }
 
-    @SuppressWarnings("null")
     private void post(String path, Map<String, Object> body) {
         webClient.post()
-                .uri(baseUrl + path)
+                .uri(Objects.requireNonNull(baseUrl + path))
                 .header("x-api-key", apiKey)
                 .header("Content-Type", "application/json")
-                .bodyValue(body)
+                .bodyValue(Objects.requireNonNull(body))
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe(
@@ -71,13 +71,12 @@ public class LangSmithService {
                 );
     }
 
-    @SuppressWarnings("null")
     private void patch(String path, Map<String, Object> body) {
         webClient.patch()
-                .uri(baseUrl + path)
+                .uri(Objects.requireNonNull(baseUrl + path))
                 .header("x-api-key", apiKey)
                 .header("Content-Type", "application/json")
-                .bodyValue(body)
+                .bodyValue(Objects.requireNonNull(body))
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe(

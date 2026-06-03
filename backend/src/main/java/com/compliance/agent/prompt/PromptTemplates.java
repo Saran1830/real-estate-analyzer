@@ -97,7 +97,8 @@ public final class PromptTemplates {
                  "loan_agreement",
                  "letter_of_intent",
                  "commercial_sales_agreement",
-                 "residential_lease" -> true;
+                 "residential_lease",
+                 "executive_developer_program" -> true;
             default -> false;
         };
     }

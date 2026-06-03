@@ -51,6 +51,48 @@ export interface ConversationTurn {
   rerankScores: RerankScore[];
 }
 
+// ── Deal Analyzer ─────────────────────────────────────────────────────────────
+
+export interface DealFinancials {
+  askingPrice: number | null;
+  estimatedRepairs: number | null;
+  estimatedARV: number | null;
+  maxAllowableOffer: number | null;
+  projectedProfit: number | null;
+  roi: string | null;
+  projectedMonthlyRent: string | null;
+  capRate: string | null;
+  cashOnCash: string | null;
+}
+
+export type DealVerdict = "STRONG_BUY" | "BUY" | "MARGINAL" | "PASS" | "UNKNOWN";
+
+export interface DealAnalysisResponse {
+  sessionId: string;
+  verdict: DealVerdict;
+  score: number;
+  strategy: string;
+  framework: string;
+  financials: DealFinancials | null;
+  marketNotes: string;
+  riskFactors: string[];
+  complianceFlags: string[];
+  summary: string;
+  recommendation: string;
+  agentTrace: NodeExecution[];
+}
+
+export const DEAL_DOCUMENT_TYPES = [
+  "Purchase Agreement",
+  "Inspection Report",
+  "Comparable Sales (Comps)",
+  "Market Report",
+  "Title Report",
+  "Loan Documents",
+  "Property Tax Records",
+  "Other",
+] as const;
+
 export const DOCUMENT_TYPES = [
   { value: "wholesale_purchase_agreement", label: "Wholesale Purchase Agreement" },
   { value: "loan_agreement", label: "Loan Agreement" },
@@ -60,4 +102,5 @@ export const DOCUMENT_TYPES = [
   { value: "design_construction_agreement", label: "Design & Construction Agreement" },
   { value: "vendor_contract", label: "Vendor Contract" },
   { value: "nda", label: "NDA" },
+  { value: "executive_developer_program", label: "Executive Developer Program" },
 ] as const;

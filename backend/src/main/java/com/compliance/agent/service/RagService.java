@@ -68,6 +68,13 @@ public class RagService {
         return matches;
     }
 
+    public void ingestDocuments(String sessionId, List<com.compliance.agent.model.DealModels.DealDocument> documents) {
+        for (com.compliance.agent.model.DealModels.DealDocument doc : documents) {
+            String prefixed = "=== " + doc.name() + " ===\n" + doc.text();
+            ingestDocument(sessionId, prefixed);
+        }
+    }
+
     public void deleteSession(String sessionId) {
         ChromaEmbeddingStore store = storeCache.remove(sessionId);
         if (store != null) {

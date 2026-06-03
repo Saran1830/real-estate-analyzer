@@ -1,9 +1,7 @@
-import type { AnalyzeResponse, AskResponse } from "./types";
-
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+import type { AnalyzeResponse, AskResponse, DealAnalysisResponse } from "./types";
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(path, {
     ...init,
     headers: { "Content-Type": "application/json", ...init.headers },
   });
@@ -38,7 +36,25 @@ export async function askQuestion(
   });
 }
 
+export interface DealDocumentPayload {
+  name: string;
+  text: string;
+  type: string;
+}
+
+export async function analyzeDeal(
+  documents: DealDocumentPayload[],
+  address?: string,
+  askingPrice?: number,
+  estimatedRepairs?: number,
+  notes?: string
+): Promise<DealAnalysisResponse> {
+  return request<DealAnalysisResponse>("/api/deal/analyze", {
+    method: "POST",
+    body: JSON.stringify({ documents, address, askingPrice, estimatedRepairs, notes }),
+  });
+}
+
 export async function clearSession(sessionId: string): Promise<void> {
-  // Fire-and-forget cleanup — swallow errors so callers are never blocked
-  await fetch(`${BASE}/api/compliance/session/${sessionId}`, { method: "DELETE" }).catch(() => {});
+  await fetch(`/api/compliance/session/${sessionId}`, { method: "DELETE" }).catch(() => {});
 }

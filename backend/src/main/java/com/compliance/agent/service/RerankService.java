@@ -1,18 +1,20 @@
 package com.compliance.agent.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -47,19 +49,14 @@ public class RerankService {
                 .map(m -> m.embedded().text())
                 .toList();
 
-        Map<String, Object> body = Map.of(
-                "model", cohereModel,
-                "query", query,
-                "documents", docs,
-                "top_n", topN
-        );
+        CohereRequest cohereRequest = new CohereRequest(cohereModel, query, docs, topN);
 
         try {
             CohereRerankResponse response = webClient.post()
                     .uri(Objects.requireNonNull(cohereBaseUrl))
                     .header("Authorization", "Bearer " + cohereApiKey)
                     .header("Content-Type", "application/json")
-                    .bodyValue(Objects.requireNonNull(body))
+                    .body(BodyInserters.fromValue(cohereRequest))
                     .retrieve()
                     .bodyToMono(CohereRerankResponse.class)
                     .timeout(Duration.ofSeconds(10))
@@ -72,20 +69,25 @@ public class RerankService {
 
             List<RankedMatch> ranked = new ArrayList<>();
             for (CohereResult result : response.results()) {
+                if (result.index() < 0 || result.index() >= candidates.size()) {
+                    log.warn("Cohere returned out-of-bounds index {} for {} candidates; skipping",
+                            result.index(), candidates.size());
+                    continue;
+                }
                 EmbeddingMatch<TextSegment> original = candidates.get(result.index());
-                ranked.add(new RankedMatch(
-                        original,
-                        result.index(),
-                        original.score(),
-                        result.relevanceScore()
-                ));
+                ranked.add(new RankedMatch(original, result.index(), original.score(), result.relevanceScore()));
             }
             ranked.sort(Comparator.comparingDouble(RankedMatch::rerankScore).reversed());
             log.debug("Reranked {} candidates to top-{}", candidates.size(), topN);
             return ranked;
 
+        } catch (WebClientResponseException e) {
+            log.warn("Cohere rerank HTTP {} {}: falling back to cosine ranking",
+                    e.getStatusCode().value(), e.getStatusText());
+            return toRankedFallback(candidates, topN);
         } catch (Exception e) {
-            log.warn("Cohere rerank failed: {}; falling back to cosine ranking", e.getMessage());
+            log.warn("Cohere rerank failed ({}): {}; falling back to cosine ranking",
+                    e.getClass().getSimpleName(), e.getMessage());
             return toRankedFallback(candidates, topN);
         }
     }
@@ -102,6 +104,13 @@ public class RerankService {
             int originalIndex,
             double cosineScore,
             double rerankScore
+    ) {}
+
+    private record CohereRequest(
+            String model,
+            String query,
+            List<String> documents,
+            @JsonProperty("top_n") int topN
     ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)

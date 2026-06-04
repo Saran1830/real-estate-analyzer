@@ -2,6 +2,7 @@ package com.compliance.agent.agent;
 
 import com.compliance.agent.model.Models.*;
 import com.compliance.agent.prompt.PromptTemplates;
+import com.compliance.agent.util.LlmUtils;
 import com.compliance.agent.service.ConversationMemoryService;
 import com.compliance.agent.service.LangSmithService;
 import com.compliance.agent.service.RagService;
@@ -14,6 +15,7 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +34,9 @@ public class ComplianceAgentOrchestrator {
     private final ConversationMemoryService conversationMemoryService;
     private final LangSmithService langSmithService;
     private final ObjectMapper objectMapper;
+
+    @Value("${rag.rerank.top-n}")
+    private int rerankTopN;
 
     public AnalyzeResponse orchestrateAnalysis(String documentText, String documentType, String tenantId) {
         String sessionId = UUID.randomUUID().toString();
@@ -56,6 +61,13 @@ public class ComplianceAgentOrchestrator {
         // Node 2 — Ingest (also clears any previous memory for this session)
         conversationMemoryService.clearSession(sessionId);
         state = ingestNode(state, trace, parentRunId);
+
+        if (state.ingestFailed()) {
+            langSmithService.endRun(parentRunId, null, state.ingestError());
+            return new AnalyzeResponse(sessionId, "UNKNOWN",
+                    "Document could not be ingested: " + state.ingestError(),
+                    List.of(), trace);
+        }
 
         // Node 3 — Analyze
         AnalyzeResponse result = analyzeNode(state, trace, parentRunId, totalStart);
@@ -127,9 +139,11 @@ public class ComplianceAgentOrchestrator {
             langSmithService.endRun(runId, Map.of("status", "ok"), null);
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
-            trace.add(new NodeExecution("ingest", "ERROR", latency, e.getMessage()));
-            langSmithService.endRun(runId, null, e.getMessage());
-            log.error("Ingest failed for session={}: {}", state.sessionId(), e.getMessage(), e);
+            String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
+            trace.add(new NodeExecution("ingest", "ERROR", latency, msg));
+            langSmithService.endRun(runId, null, msg);
+            log.error("Ingest failed for session={}: {}", state.sessionId(), msg, e);
+            return state.withIngestFailed(msg);
         }
         return state;
     }
@@ -184,7 +198,7 @@ public class ComplianceAgentOrchestrator {
         List<EmbeddingMatch<TextSegment>> candidates = ragService.retrieve(state.sessionId(), state.question());
 
         // Step 2: Cohere re-rank to top-5
-        List<RerankService.RankedMatch> reranked = rerankService.rerank(state.question(), candidates, 5);
+        List<RerankService.RankedMatch> reranked = rerankService.rerank(state.question(), candidates, rerankTopN);
 
         // Step 3: build context from re-ranked chunks
         String context = reranked.stream()
@@ -270,11 +284,6 @@ public class ComplianceAgentOrchestrator {
         return "MEDIUM";
     }
 
-    private static String stripMarkdownFences(String text) {
-        return text.replaceAll("```(?:json)?\\s*", "").replaceAll("```", "").trim();
-    }
-
-    private static String truncate(String text, int maxChars) {
-        return text.length() <= maxChars ? text : text.substring(0, maxChars) + "...";
-    }
+    private static String stripMarkdownFences(String text) { return LlmUtils.stripMarkdownFences(text); }
+    private static String truncate(String text, int maxChars) { return LlmUtils.truncate(text, maxChars); }
 }

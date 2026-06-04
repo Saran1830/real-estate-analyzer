@@ -1,6 +1,7 @@
 package com.compliance.agent.model;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public final class Models {
@@ -8,8 +9,14 @@ public final class Models {
     private Models() {}
 
     public record AnalyzeRequest(
-            @NotBlank String documentText,
-            @NotBlank String documentType,
+            @NotBlank
+            @Size(max = 102_400, message = "documentText must not exceed 100 KB")
+            String documentText,
+
+            @NotBlank
+            @Size(max = 100, message = "documentType must not exceed 100 characters")
+            String documentType,
+
             String tenantId
     ) {}
 
@@ -22,8 +29,13 @@ public final class Models {
     ) {}
 
     public record AskRequest(
-            @NotBlank String sessionId,
-            @NotBlank String question,
+            @NotBlank
+            String sessionId,
+
+            @NotBlank
+            @Size(max = 1_000, message = "question must not exceed 1000 characters")
+            String question,
+
             String tenantId
     ) {}
 

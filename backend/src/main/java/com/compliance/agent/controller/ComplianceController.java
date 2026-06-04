@@ -52,10 +52,4 @@ public class ComplianceController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleError(Exception e) {
-        log.error("Unhandled error: {}", e.getMessage(), e);
-        return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("INTERNAL_ERROR", e.getMessage()));
-    }
 }

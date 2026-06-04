@@ -25,10 +25,4 @@ public class DealController {
         return ResponseEntity.ok(response);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleError(Exception e) {
-        log.error("Deal analysis error: {}", e.getMessage(), e);
-        return ResponseEntity.internalServerError()
-                .body(new ErrorResponse("INTERNAL_ERROR", e.getMessage()));
-    }
 }

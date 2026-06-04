@@ -2,17 +2,21 @@ package com.compliance.agent.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
  * Sends run traces to LangSmith via its REST API.
- * If LANGSMITH_API_KEY is not set, all calls are silently skipped.
+ * All calls are fire-and-forget — failures are logged as warnings and never
+ * propagate to callers. If LANGSMITH_API_KEY is not set, all calls are skipped.
  */
 @Service
 @Slf4j
@@ -37,7 +41,7 @@ public class LangSmithService {
         if (apiKey.isBlank()) return null;
         String runId = UUID.randomUUID().toString();
         try {
-            Map<String, Object> body = buildRunBody(runId, name, runType, inputs, parentRunId, null);
+            Map<String, Object> body = buildRunBody(runId, name, runType, inputs, parentRunId);
             post("/runs", body);
         } catch (Exception e) {
             log.warn("LangSmith startRun failed: {}", e.getMessage());
@@ -48,55 +52,61 @@ public class LangSmithService {
     public void endRun(String runId, Map<String, Object> outputs, String error) {
         if (apiKey.isBlank() || runId == null) return;
         try {
-            Map<String, Object> body = error == null
-                    ? Map.of("outputs", outputs, "end_time", Instant.now().toString())
-                    : Map.of("error", error, "end_time", Instant.now().toString());
+            Map<String, Object> body;
+            if (error != null) {
+                body = Map.of("error", error, "end_time", Instant.now().toString());
+            } else if (outputs != null) {
+                body = Map.of("outputs", outputs, "end_time", Instant.now().toString());
+            } else {
+                body = Map.of("end_time", Instant.now().toString());
+            }
             patch("/runs/" + runId, body);
         } catch (Exception e) {
             log.warn("LangSmith endRun failed: {}", e.getMessage());
         }
     }
 
-    private void post(String path, Map<String, Object> body) {
+    private void post(String path, @NonNull Map<String, Object> body) {
         webClient.post()
                 .uri(Objects.requireNonNull(baseUrl + path))
                 .header("x-api-key", apiKey)
                 .header("Content-Type", "application/json")
-                .bodyValue(Objects.requireNonNull(body))
+                .body(BodyInserters.fromValue(body))
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe(
-                        r -> log.debug("LangSmith POST {}: {}", path, r),
-                        e -> log.warn("LangSmith POST {} error: {}", path, e.getMessage())
+                        r -> log.debug("LangSmith POST {}: ok", path),
+                        e -> log.warn("LangSmith POST {} failed ({}): {}", path,
+                                e.getClass().getSimpleName(), e.getMessage())
                 );
     }
 
-    private void patch(String path, Map<String, Object> body) {
+    private void patch(String path, @NonNull Map<String, Object> body) {
         webClient.patch()
                 .uri(Objects.requireNonNull(baseUrl + path))
                 .header("x-api-key", apiKey)
                 .header("Content-Type", "application/json")
-                .bodyValue(Objects.requireNonNull(body))
+                .body(BodyInserters.fromValue(body))
                 .retrieve()
                 .bodyToMono(String.class)
                 .subscribe(
-                        r -> log.debug("LangSmith PATCH {}: {}", path, r),
-                        e -> log.warn("LangSmith PATCH {} error: {}", path, e.getMessage())
+                        r -> log.debug("LangSmith PATCH {}: ok", path),
+                        e -> log.warn("LangSmith PATCH {} failed ({}): {}", path,
+                                e.getClass().getSimpleName(), e.getMessage())
                 );
     }
 
     private Map<String, Object> buildRunBody(
             String runId, String name, String runType,
-            Map<String, Object> inputs, String parentRunId, String sessionId) {
-        var builder = new java.util.HashMap<String, Object>();
-        builder.put("id", runId);
-        builder.put("name", name);
-        builder.put("run_type", runType);
-        builder.put("inputs", inputs);
-        builder.put("start_time", Instant.now().toString());
-        builder.put("project_name", project);
-        if (parentRunId != null) builder.put("parent_run_id", parentRunId);
-        if (sessionId != null) builder.put("session_id", sessionId);
-        return builder;
+            Map<String, Object> inputs, String parentRunId) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("id", runId);
+        body.put("name", name);
+        body.put("run_type", runType);
+        body.put("inputs", inputs);
+        body.put("start_time", Instant.now().toString());
+        body.put("project_name", project);
+        if (parentRunId != null) body.put("parent_run_id", parentRunId);
+        return body;
     }
 }

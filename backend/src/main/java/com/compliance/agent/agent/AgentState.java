@@ -11,23 +11,30 @@ public record AgentState(
         String documentType,
         String question,
         GuardrailStatus guardrailStatus,
-        String guardrailReason
+        String guardrailReason,
+        boolean ingestFailed,
+        String ingestError
 ) {
     public enum GuardrailStatus { PENDING, VALID, INVALID }
 
     public static AgentState forAnalysis(String sessionId, String tenantId,
                                          String documentText, String documentType) {
         return new AgentState(sessionId, tenantId, documentText, documentType,
-                null, GuardrailStatus.PENDING, null);
+                null, GuardrailStatus.PENDING, null, false, null);
     }
 
     public static AgentState forQA(String sessionId, String tenantId, String question) {
         return new AgentState(sessionId, tenantId, null, null,
-                question, GuardrailStatus.PENDING, null);
+                question, GuardrailStatus.PENDING, null, false, null);
     }
 
     public AgentState withGuardrail(GuardrailStatus status, String reason) {
         return new AgentState(sessionId, tenantId, documentText, documentType,
-                question, status, reason);
+                question, status, reason, ingestFailed, ingestError);
+    }
+
+    public AgentState withIngestFailed(String error) {
+        return new AgentState(sessionId, tenantId, documentText, documentType,
+                question, guardrailStatus, guardrailReason, true, error);
     }
 }

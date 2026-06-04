@@ -12,8 +12,11 @@ import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,11 +40,14 @@ public class RagService {
     @Value("${rag.chunk.overlap}")
     private int chunkOverlap;
 
-    // Cache stores per session to avoid rebuilding the client on every call
+    private static final long SESSION_TTL_HOURS = 1;
+
     private final Map<String, ChromaEmbeddingStore> storeCache = new ConcurrentHashMap<>();
+    private final Map<String, Instant> lastAccessed = new ConcurrentHashMap<>();
 
     public void ingestDocument(String sessionId, String documentText) {
         log.info("Ingesting document for session={}", sessionId);
+        touch(sessionId);
         ChromaEmbeddingStore store = getOrCreateStore(sessionId);
 
         Document document = Document.from(documentText);
@@ -55,6 +61,7 @@ public class RagService {
     }
 
     public List<EmbeddingMatch<TextSegment>> retrieve(String sessionId, String query) {
+        touch(sessionId);
         ChromaEmbeddingStore store = getOrCreateStore(sessionId);
         Embedding queryEmbedding = embeddingModel.embed(query).content();
 
@@ -70,12 +77,12 @@ public class RagService {
 
     public void ingestDocuments(String sessionId, List<com.compliance.agent.model.DealModels.DealDocument> documents) {
         for (com.compliance.agent.model.DealModels.DealDocument doc : documents) {
-            String prefixed = "=== " + doc.name() + " ===\n" + doc.text();
-            ingestDocument(sessionId, prefixed);
+            ingestDocument(sessionId, "=== " + doc.name() + " ===\n" + doc.text());
         }
     }
 
     public void deleteSession(String sessionId) {
+        lastAccessed.remove(sessionId);
         ChromaEmbeddingStore store = storeCache.remove(sessionId);
         if (store != null) {
             try {
@@ -85,6 +92,34 @@ public class RagService {
                 log.warn("Failed to delete ChromaDB collection for session={}: {}", sessionId, e.getMessage());
             }
         }
+    }
+
+    @Scheduled(fixedDelay = 600_000) // every 10 minutes
+    public void evictExpiredSessions() {
+        try {
+            Instant cutoff = Instant.now().minus(SESSION_TTL_HOURS, ChronoUnit.HOURS);
+            lastAccessed.entrySet().removeIf(entry -> {
+                if (entry.getValue().isBefore(cutoff)) {
+                    ChromaEmbeddingStore store = storeCache.remove(entry.getKey());
+                    if (store != null) {
+                        try {
+                            store.removeAll();
+                        } catch (Exception e) {
+                            log.warn("ChromaDB cleanup failed for session={}: {}", entry.getKey(), e.getMessage());
+                        }
+                    }
+                    log.debug("Evicted expired RAG session={}", entry.getKey());
+                    return true;
+                }
+                return false;
+            });
+        } catch (Exception e) {
+            log.error("RAG session eviction task failed — will retry on next tick: {}", e.getMessage(), e);
+        }
+    }
+
+    private void touch(String sessionId) {
+        lastAccessed.put(sessionId, Instant.now());
     }
 
     private ChromaEmbeddingStore getOrCreateStore(String sessionId) {

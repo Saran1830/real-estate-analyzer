@@ -3,6 +3,7 @@ package com.compliance.agent.agent;
 import com.compliance.agent.model.DealModels.*;
 import com.compliance.agent.model.Models.NodeExecution;
 import com.compliance.agent.prompt.DealPromptTemplates;
+import com.compliance.agent.util.LlmUtils;
 import com.compliance.agent.service.LangSmithService;
 import com.compliance.agent.service.RagService;
 import com.compliance.agent.service.WebSearchService;
@@ -81,9 +82,11 @@ public class DealAnalyzerOrchestrator {
             langSmithService.endRun(runId, Map.of("status", "ok", "docs", documents.size()), null);
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
-            trace.add(new NodeExecution("ingest", "ERROR", latency, e.getMessage()));
-            langSmithService.endRun(runId, null, e.getMessage());
-            log.error("Deal ingest failed for session={}: {}", sessionId, e.getMessage(), e);
+            String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
+            trace.add(new NodeExecution("ingest", "ERROR", latency, msg));
+            langSmithService.endRun(runId, null, msg);
+            log.error("Deal ingest failed for session={}: {}", sessionId, msg, e);
+            throw new IllegalStateException("Document ingestion failed: " + msg, e);
         }
     }
 
@@ -187,11 +190,6 @@ public class DealAnalyzerOrchestrator {
         return result;
     }
 
-    private static String stripMarkdownFences(String text) {
-        return text.replaceAll("```(?:json)?\\s*", "").replaceAll("```", "").trim();
-    }
-
-    private static String truncate(String text, int maxChars) {
-        return text.length() <= maxChars ? text : text.substring(0, maxChars) + "...";
-    }
+    private static String stripMarkdownFences(String text) { return LlmUtils.stripMarkdownFences(text); }
+    private static String truncate(String text, int maxChars) { return LlmUtils.truncate(text, maxChars); }
 }

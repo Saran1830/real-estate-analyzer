@@ -1,14 +1,16 @@
 package com.compliance.agent.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,16 +33,12 @@ public class WebSearchService {
         }
         try {
             String query = "real estate market trends comparable sales neighborhood " + address;
-            Map<String, Object> body = Map.of(
-                    "api_key", tavilyApiKey,
-                    "query", query,
-                    "search_depth", "basic",
-                    "max_results", 3
-            );
+            TavilyRequest request = new TavilyRequest(tavilyApiKey, query, "basic", 3);
+
             TavilyResponse response = webClient.post()
                     .uri("https://api.tavily.com/search")
                     .header("Content-Type", "application/json")
-                    .bodyValue(body)
+                    .body(BodyInserters.fromValue(request))
                     .retrieve()
                     .bodyToMono(TavilyResponse.class)
                     .timeout(Duration.ofSeconds(10))
@@ -52,11 +50,21 @@ public class WebSearchService {
                     .map(r -> "Source: " + r.title() + "\n" + r.content())
                     .collect(Collectors.joining("\n\n"));
 
+        } catch (WebClientResponseException e) {
+            log.warn("Tavily HTTP {} {}: returning empty market data", e.getStatusCode().value(), e.getStatusText());
+            return "";
         } catch (Exception e) {
-            log.warn("Web search failed for '{}': {}", address, e.getMessage());
+            log.warn("Web search failed for '{}' ({}): {}", address, e.getClass().getSimpleName(), e.getMessage());
             return "";
         }
     }
+
+    private record TavilyRequest(
+            @JsonProperty("api_key")      String apiKey,
+            @JsonProperty("query")        String query,
+            @JsonProperty("search_depth") String searchDepth,
+            @JsonProperty("max_results")  int maxResults
+    ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record TavilyResponse(List<TavilyResult> results) {}

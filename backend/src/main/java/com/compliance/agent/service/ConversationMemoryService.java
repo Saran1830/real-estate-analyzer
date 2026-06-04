@@ -3,11 +3,11 @@ package com.compliance.agent.service;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -18,23 +18,27 @@ public class ConversationMemoryService {
 
     private static final int MAX_MESSAGES = 10;
 
-    // One ChatMemory per sessionId — never shared across sessions
-    private final Map<String, ChatMemory> sessions = new ConcurrentHashMap<>();
+    // One bounded deque per sessionId — never shared across sessions
+    private final Map<String, Deque<ChatMessage>> sessions = new ConcurrentHashMap<>();
 
     public void addUserMessage(String sessionId, String message) {
-        getOrCreate(sessionId).add(UserMessage.from(message));
+        Deque<ChatMessage> mem = getOrCreate(sessionId);
+        mem.addLast(UserMessage.from(message));
+        evictIfNeeded(mem);
     }
 
     public void addAiMessage(String sessionId, String message) {
-        getOrCreate(sessionId).add(AiMessage.from(message));
+        Deque<ChatMessage> mem = getOrCreate(sessionId);
+        mem.addLast(AiMessage.from(message));
+        evictIfNeeded(mem);
     }
 
     public String getFormattedHistory(String sessionId) {
-        ChatMemory memory = sessions.get(sessionId);
-        if (memory == null || memory.messages().isEmpty()) {
+        Deque<ChatMessage> memory = sessions.get(sessionId);
+        if (memory == null || memory.isEmpty()) {
             return "No previous conversation.";
         }
-        return memory.messages().stream()
+        return memory.stream()
                 .map(ConversationMemoryService::formatMessage)
                 .collect(Collectors.joining("\n"));
     }
@@ -44,9 +48,14 @@ public class ConversationMemoryService {
         log.info("Cleared conversation memory for session={}", sessionId);
     }
 
-    private ChatMemory getOrCreate(String sessionId) {
-        return sessions.computeIfAbsent(sessionId,
-                id -> MessageWindowChatMemory.withMaxMessages(MAX_MESSAGES));
+    private Deque<ChatMessage> getOrCreate(String sessionId) {
+        return sessions.computeIfAbsent(sessionId, id -> new ArrayDeque<>());
+    }
+
+    private void evictIfNeeded(Deque<ChatMessage> mem) {
+        while (mem.size() > MAX_MESSAGES) {
+            mem.removeFirst();
+        }
     }
 
     private static String formatMessage(ChatMessage msg) {

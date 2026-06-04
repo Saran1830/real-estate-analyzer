@@ -18,7 +18,7 @@
   <description>AI Compliance Document Review Agent — Real Estate Domain</description>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <langchain4j.version>0.35.0</langchain4j.version>
   </properties>
 

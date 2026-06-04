@@ -128,8 +128,11 @@ def run_ragas(rag_data: list[dict]) -> dict:
             for d in valid
         ])
 
-        llm = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY)
-        embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
+        from ragas.llms import LangchainLLMWrapper
+        from ragas.embeddings import LangchainEmbeddingsWrapper
+
+        llm = LangchainLLMWrapper(ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY))
+        embeddings = LangchainEmbeddingsWrapper(OpenAIEmbeddings(api_key=OPENAI_API_KEY))
 
         result = evaluate(
             dataset=dataset,

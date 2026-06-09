@@ -3,6 +3,7 @@ package com.compliance.agent.controller;
 import com.compliance.agent.model.Models.ErrorResponse;
 import com.compliance.agent.util.LlmUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import dev.ai4j.openai4j.OpenAiHttpException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,17 @@ public class GlobalExceptionHandler {
         log.error("External service error: status={}", ex.getStatusCode());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(new ErrorResponse("EXTERNAL_SERVICE_ERROR", "An upstream service is unavailable. Please try again later."));
+    }
+
+    @ExceptionHandler(OpenAiHttpException.class)
+    public ResponseEntity<ErrorResponse> handleOpenAiHttpException(OpenAiHttpException ex) {
+        HttpStatus status = ex.code() == 429 || ex.code() >= 500
+                ? HttpStatus.SERVICE_UNAVAILABLE
+                : HttpStatus.BAD_GATEWAY;
+        String code = ex.code() == 429 ? "UPSTREAM_RATE_LIMIT" : "UPSTREAM_AI_ERROR";
+        log.warn("LLM provider failure: status={}", ex.code());
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(code, "The AI provider is temporarily unavailable. Please try again shortly."));
     }
 
     @ExceptionHandler(TimeoutException.class)

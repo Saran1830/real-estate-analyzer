@@ -3,11 +3,11 @@ package com.compliance.agent.agent;
 import com.compliance.agent.model.DealModels.DealAnalysisRequest;
 import com.compliance.agent.model.DealModels.DealAnalysisResponse;
 import com.compliance.agent.model.DealModels.DealDocument;
+import com.compliance.agent.service.ChatGenerationService;
 import com.compliance.agent.service.LangSmithService;
 import com.compliance.agent.service.RagService;
 import com.compliance.agent.service.WebSearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +49,7 @@ class DealAnalyzerOrchestratorTest {
             }
             """;
 
-    @Mock private OpenAiChatModel chatModel;
+    @Mock private ChatGenerationService chatGenerationService;
     @Mock private RagService ragService;
     @Mock private WebSearchService webSearchService;
     @Mock private LangSmithService langSmithService;
@@ -59,14 +59,14 @@ class DealAnalyzerOrchestratorTest {
     @BeforeEach
     void setUp() {
         orchestrator = new DealAnalyzerOrchestrator(
-                chatModel, ragService, webSearchService, langSmithService, new ObjectMapper());
+                chatGenerationService, ragService, webSearchService, langSmithService, new ObjectMapper());
     }
 
     @Test
     void analyzeDealNormalizesUnexpectedModelOutput() {
         when(webSearchService.searchMarketData(anyString())).thenReturn("");
         doNothing().when(ragService).ingestDocuments(anyString(), anyList());
-        when(chatModel.generate(anyString())).thenReturn(WEIRD_JSON);
+        when(chatGenerationService.generate(anyString())).thenReturn(WEIRD_JSON);
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         DealAnalysisResponse response = orchestrator.analyzeDeal(
@@ -93,7 +93,7 @@ class DealAnalyzerOrchestratorTest {
     void analyzeDealMalformedJsonFallsBackGracefully() {
         when(webSearchService.searchMarketData(anyString())).thenReturn("");
         doNothing().when(ragService).ingestDocuments(anyString(), anyList());
-        when(chatModel.generate(anyString())).thenReturn("not json");
+        when(chatGenerationService.generate(anyString())).thenReturn("not json");
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         DealAnalysisResponse response = orchestrator.analyzeDeal(

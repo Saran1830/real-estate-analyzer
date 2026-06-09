@@ -3,14 +3,14 @@ package com.compliance.agent.agent;
 import com.compliance.agent.model.DealModels.*;
 import com.compliance.agent.model.Models.NodeExecution;
 import com.compliance.agent.prompt.DealPromptTemplates;
-import com.compliance.agent.util.LlmUtils;
+import com.compliance.agent.service.ChatGenerationService;
 import com.compliance.agent.service.LangSmithService;
 import com.compliance.agent.service.RagService;
 import com.compliance.agent.service.WebSearchService;
+import com.compliance.agent.util.LlmUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class DealAnalyzerOrchestrator {
     private static final int MAX_LIST_ITEMS = 10;
     private static final int MAX_LIST_ITEM_CHARS = 200;
 
-    private final OpenAiChatModel chatModel;
+    private final ChatGenerationService chatGenerationService;
     private final RagService ragService;
     private final WebSearchService webSearchService;
     private final LangSmithService langSmithService;
@@ -123,7 +123,7 @@ public class DealAnalyzerOrchestrator {
                 .replace("{docCount}", String.valueOf(request.documents().size()))
                 .replace("{documents}", docsText);
 
-        String llmResponse = chatModel.generate(prompt);
+        String llmResponse = chatGenerationService.generate(prompt);
         String cleaned = stripMarkdownFences(llmResponse);
         long latency = System.currentTimeMillis() - start;
 

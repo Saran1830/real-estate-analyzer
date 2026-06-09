@@ -42,30 +42,78 @@ EMBED_MODEL    = os.getenv("EMBEDDING_MODEL",   "text-embedding-3-small")
 TEST_CASES_PATH = Path(__file__).parent / "test_cases.json"
 RESULTS_DIR     = Path(__file__).parent
 RAGAS_METRICS   = ("faithfulness", "answer_relevancy", "context_precision")
+RETRYABLE_STATUS_CODES = {429, 502, 503, 504}
+REQUEST_MAX_RETRIES = max(1, int(os.getenv("EVAL_REQUEST_MAX_RETRIES", "3")))
+REQUEST_INITIAL_BACKOFF_SECONDS = max(
+    0.0, float(os.getenv("EVAL_REQUEST_INITIAL_BACKOFF_SECONDS", "2.0"))
+)
+REQUEST_MAX_BACKOFF_SECONDS = max(
+    REQUEST_INITIAL_BACKOFF_SECONDS,
+    float(os.getenv("EVAL_REQUEST_MAX_BACKOFF_SECONDS", "12.0")),
+)
+REQUEST_PAUSE_SECONDS = max(0.0, float(os.getenv("EVAL_REQUEST_PAUSE_SECONDS", "1.0")))
 
 
 # ── backend calls ─────────────────────────────────────────────────────────────
 
+def compute_retry_delay(attempt: int) -> float:
+    delay = REQUEST_INITIAL_BACKOFF_SECONDS * (2 ** max(0, attempt - 1))
+    return min(delay, REQUEST_MAX_BACKOFF_SECONDS)
+
+
+def is_retryable_request_error(exc: requests.RequestException) -> bool:
+    response = getattr(exc, "response", None)
+    if response is not None and response.status_code in RETRYABLE_STATUS_CODES:
+        return True
+    return isinstance(exc, (requests.Timeout, requests.ConnectionError))
+
+
+def post_json_with_retry(path: str, payload: dict, timeout: int) -> dict:
+    url = f"{API_BASE}{path}"
+    for attempt in range(1, REQUEST_MAX_RETRIES + 1):
+        try:
+            resp = requests.post(
+                url,
+                json=payload,
+                headers={"X-Tenant-ID": "eval"},
+                timeout=timeout,
+            )
+            if resp.status_code in RETRYABLE_STATUS_CODES and attempt < REQUEST_MAX_RETRIES:
+                delay = compute_retry_delay(attempt)
+                print(
+                    f"    retrying {path} after HTTP {resp.status_code}; "
+                    f"sleeping {delay:.1f}s (attempt {attempt}/{REQUEST_MAX_RETRIES})"
+                )
+                time.sleep(delay)
+                continue
+            resp.raise_for_status()
+            return resp.json()
+        except requests.RequestException as exc:
+            if not is_retryable_request_error(exc) or attempt >= REQUEST_MAX_RETRIES:
+                raise
+            delay = compute_retry_delay(attempt)
+            print(
+                f"    retrying {path} after {type(exc).__name__}; "
+                f"sleeping {delay:.1f}s (attempt {attempt}/{REQUEST_MAX_RETRIES})"
+            )
+            time.sleep(delay)
+    raise RuntimeError(f"Failed to call {path} after {REQUEST_MAX_RETRIES} attempts")
+
+
 def analyze_document(document_text: str, document_type: str) -> dict:
-    resp = requests.post(
-        f"{API_BASE}/api/compliance/analyze",
-        json={"documentText": document_text, "documentType": document_type},
-        headers={"X-Tenant-ID": "eval"},
+    return post_json_with_retry(
+        "/api/compliance/analyze",
+        {"documentText": document_text, "documentType": document_type},
         timeout=60,
     )
-    resp.raise_for_status()
-    return resp.json()
 
 
 def ask_question(session_id: str, question: str) -> dict:
-    resp = requests.post(
-        f"{API_BASE}/api/compliance/ask",
-        json={"sessionId": session_id, "question": question},
-        headers={"X-Tenant-ID": "eval"},
+    return post_json_with_retry(
+        "/api/compliance/ask",
+        {"sessionId": session_id, "question": question},
         timeout=30,
     )
-    resp.raise_for_status()
-    return resp.json()
 
 
 def clear_session(session_id: str) -> None:
@@ -81,9 +129,11 @@ def collect_rag_data(test_cases: list[dict]) -> list[dict]:
     results = []
     for i, tc in enumerate(test_cases):
         print(f"  [{i + 1}/{len(test_cases)}] {tc['id']}: {tc['question'][:60]}...")
+        session_id = None
         try:
             analyze_resp = analyze_document(tc["document_excerpt"], tc["document_type"])
-            session_id   = analyze_resp["sessionId"]
+            session_id = analyze_resp["sessionId"]
+            time.sleep(REQUEST_PAUSE_SECONDS)
             ask_resp     = ask_question(session_id, tc["question"])
 
             results.append({
@@ -94,8 +144,6 @@ def collect_rag_data(test_cases: list[dict]) -> list[dict]:
                 "ground_truth": tc["ground_truth"],
                 "rerank_scores": ask_resp.get("rerankScores", []),
             })
-            clear_session(session_id)
-            time.sleep(0.5)
         except Exception as e:
             print(f"    ERROR on {tc['id']}: {e}")
             results.append({
@@ -106,6 +154,10 @@ def collect_rag_data(test_cases: list[dict]) -> list[dict]:
                 "ground_truth": tc["ground_truth"],
                 "error":        str(e),
             })
+        finally:
+            if session_id:
+                clear_session(session_id)
+            time.sleep(REQUEST_PAUSE_SECONDS)
     return results
 
 

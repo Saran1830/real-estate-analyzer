@@ -2,6 +2,7 @@ package com.compliance.agent.agent;
 
 import com.compliance.agent.model.Models.AnalyzeResponse;
 import com.compliance.agent.model.Models.AskResponse;
+import com.compliance.agent.service.ChatGenerationService;
 import com.compliance.agent.service.ConversationMemoryService;
 import com.compliance.agent.service.LangSmithService;
 import com.compliance.agent.service.RagService;
@@ -9,7 +10,6 @@ import com.compliance.agent.service.RerankService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ComplianceAgentOrchestratorTest {
 
-    @Mock private OpenAiChatModel chatModel;
+    @Mock private ChatGenerationService chatGenerationService;
     @Mock private RagService ragService;
     @Mock private RerankService rerankService;
     @Mock private ConversationMemoryService conversationMemoryService;
@@ -52,7 +52,7 @@ class ComplianceAgentOrchestratorTest {
     @BeforeEach
     void setUp() {
         orchestrator = new ComplianceAgentOrchestrator(
-                chatModel, ragService, rerankService,
+                chatGenerationService, ragService, rerankService,
                 conversationMemoryService, langSmithService,
                 new ObjectMapper()
         );
@@ -63,7 +63,7 @@ class ComplianceAgentOrchestratorTest {
     @Test
     void analyzeHappyPath_returnsRiskLevelAndFindings() {
         // call 1 = guardrail, call 2 = analyze
-        when(chatModel.generate(anyString())).thenReturn("VALID", VALID_ANALYZE_JSON);
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", VALID_ANALYZE_JSON);
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         AnalyzeResponse response = orchestrator.orchestrateAnalysis(
@@ -78,7 +78,7 @@ class ComplianceAgentOrchestratorTest {
 
     @Test
     void analyzeBlockedByGuardrail_returnsBlockedResponse() {
-        when(chatModel.generate(anyString())).thenReturn("INVALID");
+        when(chatGenerationService.generate(anyString())).thenReturn("INVALID");
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         AnalyzeResponse response = orchestrator.orchestrateAnalysis(
@@ -91,7 +91,7 @@ class ComplianceAgentOrchestratorTest {
 
     @Test
     void analyzeCallsIngestBeforeAnalyze() {
-        when(chatModel.generate(anyString())).thenReturn("VALID", VALID_ANALYZE_JSON);
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", VALID_ANALYZE_JSON);
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         orchestrator.orchestrateAnalysis("Contract text", "nda", "tenant-1");
@@ -101,7 +101,7 @@ class ComplianceAgentOrchestratorTest {
 
     @Test
     void analyzeClearsConversationMemoryOnNewSession() {
-        when(chatModel.generate(anyString())).thenReturn("VALID", VALID_ANALYZE_JSON);
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", VALID_ANALYZE_JSON);
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         orchestrator.orchestrateAnalysis("Contract text", "nda", "tenant-1");
@@ -111,7 +111,7 @@ class ComplianceAgentOrchestratorTest {
 
     @Test
     void analyzeMalformedJsonFallsBackGracefully() {
-        when(chatModel.generate(anyString())).thenReturn("VALID", "not json at all");
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", "not json at all");
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         AnalyzeResponse response = orchestrator.orchestrateAnalysis(
@@ -124,7 +124,7 @@ class ComplianceAgentOrchestratorTest {
     @Test
     void analyzeStripsMarkdownFencesBeforeJsonParse() {
         String fenced = "```json\n" + VALID_ANALYZE_JSON + "\n```";
-        when(chatModel.generate(anyString())).thenReturn("VALID", fenced);
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", fenced);
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         AnalyzeResponse response = orchestrator.orchestrateAnalysis(
@@ -138,7 +138,7 @@ class ComplianceAgentOrchestratorTest {
         String emptyFindings = """
                 {"riskLevel":"LOW","summary":"Clean contract.","findings":[]}
                 """;
-        when(chatModel.generate(anyString())).thenReturn("VALID", emptyFindings);
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", emptyFindings);
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         AnalyzeResponse response = orchestrator.orchestrateAnalysis("Clean doc", "nda", "t1");
@@ -155,7 +155,7 @@ class ComplianceAgentOrchestratorTest {
         RerankService.RankedMatch ranked = new RerankService.RankedMatch(match, 0, 0.9, 0.95);
 
         // call 1 = guardrail, call 2 = QA answer
-        when(chatModel.generate(anyString()))
+        when(chatGenerationService.generate(anyString()))
                 .thenReturn("VALID", "Payment terms require full payment at closing. Confidence: HIGH");
         when(ragService.retrieve(anyString(), anyString())).thenReturn(List.of(match));
         when(rerankService.rerank(anyString(), anyList(), anyInt())).thenReturn(List.of(ranked));
@@ -174,7 +174,7 @@ class ComplianceAgentOrchestratorTest {
 
     @Test
     void qaBlockedByGuardrail_returnsPoliteRefusal() {
-        when(chatModel.generate(anyString())).thenReturn("INVALID");
+        when(chatGenerationService.generate(anyString())).thenReturn("INVALID");
         when(langSmithService.startRun(anyString(), anyString(), anyMap(), any())).thenReturn("run-id");
 
         AskResponse response = orchestrator.orchestrateQA(
@@ -190,7 +190,7 @@ class ComplianceAgentOrchestratorTest {
         EmbeddingMatch<TextSegment> match = candidateMatch("Chunk");
         RerankService.RankedMatch ranked = new RerankService.RankedMatch(match, 0, 0.5, 0.5);
 
-        when(chatModel.generate(anyString())).thenReturn("VALID", "Unclear. Confidence: LOW");
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", "Unclear. Confidence: LOW");
         when(ragService.retrieve(anyString(), anyString())).thenReturn(List.of(match));
         when(rerankService.rerank(anyString(), anyList(), anyInt())).thenReturn(List.of(ranked));
         when(conversationMemoryService.getFormattedHistory(anyString())).thenReturn("");
@@ -205,7 +205,7 @@ class ComplianceAgentOrchestratorTest {
         EmbeddingMatch<TextSegment> match = candidateMatch("Chunk");
         RerankService.RankedMatch ranked = new RerankService.RankedMatch(match, 0, 0.7, 0.7);
 
-        when(chatModel.generate(anyString())).thenReturn("VALID", "Some answer with no confidence tag.");
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", "Some answer with no confidence tag.");
         when(ragService.retrieve(anyString(), anyString())).thenReturn(List.of(match));
         when(rerankService.rerank(anyString(), anyList(), anyInt())).thenReturn(List.of(ranked));
         when(conversationMemoryService.getFormattedHistory(anyString())).thenReturn("");
@@ -220,7 +220,7 @@ class ComplianceAgentOrchestratorTest {
         EmbeddingMatch<TextSegment> match = candidateMatch("Chunk");
         RerankService.RankedMatch ranked = new RerankService.RankedMatch(match, 0, 0.8, 0.8);
 
-        when(chatModel.generate(anyString())).thenReturn("VALID", "Answer. Confidence: MEDIUM");
+        when(chatGenerationService.generate(anyString())).thenReturn("VALID", "Answer. Confidence: MEDIUM");
         when(ragService.retrieve(anyString(), anyString())).thenReturn(List.of(match));
         when(rerankService.rerank(anyString(), anyList(), anyInt())).thenReturn(List.of(ranked));
         when(conversationMemoryService.getFormattedHistory("session-123"))

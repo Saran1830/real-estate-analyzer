@@ -1,6 +1,7 @@
 package com.compliance.agent.agent;
 
 import com.compliance.agent.model.Models.*;
+import com.compliance.agent.service.ChatGenerationService;
 import com.compliance.agent.prompt.PromptTemplates;
 import com.compliance.agent.service.ConversationMemoryService;
 import com.compliance.agent.service.LangSmithService;
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class ComplianceAgentOrchestrator {
     private static final int MAX_FINDING_TEXT_CHARS = 500;
     private static final int MAX_SUMMARY_CHARS = 1_000;
 
-    private final OpenAiChatModel chatModel;
+    private final ChatGenerationService chatGenerationService;
     private final RagService ragService;
     private final RerankService rerankService;
     private final ConversationMemoryService conversationMemoryService;
@@ -129,7 +129,7 @@ public class ComplianceAgentOrchestrator {
 
         String prompt = PromptTemplates.GUARDRAIL_PROMPT.replace("{input}",
                 LlmUtils.wrapAsUntrustedBlock("INPUT", LlmUtils.truncate(input, 2000)));
-        String verdict = LlmUtils.sanitizeText(chatModel.generate(prompt), 200).toUpperCase(Locale.ROOT);
+        String verdict = LlmUtils.sanitizeText(chatGenerationService.generate(prompt), 200).toUpperCase(Locale.ROOT);
         boolean valid = verdict.startsWith("VALID");
 
         AgentState.GuardrailStatus status = valid
@@ -182,7 +182,7 @@ public class ComplianceAgentOrchestrator {
                 .replace("{document}", LlmUtils.wrapAsUntrustedBlock("DOCUMENT",
                         LlmUtils.sanitizeText(state.documentText(), 12_000)));
 
-        String llmResponse = chatModel.generate(prompt);
+        String llmResponse = chatGenerationService.generate(prompt);
         String cleaned = stripMarkdownFences(llmResponse);
 
         long latency = System.currentTimeMillis() - start;
@@ -246,7 +246,7 @@ public class ComplianceAgentOrchestrator {
                 .replace("{question}", LlmUtils.wrapAsUntrustedBlock("QUESTION",
                         LlmUtils.truncate(state.question(), 2000)));
 
-        String llmResponse = chatModel.generate(prompt);
+        String llmResponse = chatGenerationService.generate(prompt);
         String answer = extractAnswer(llmResponse);
 
         // Step 6: store this turn in memory

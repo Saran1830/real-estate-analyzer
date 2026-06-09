@@ -1,0 +1,820 @@
+{
+  "200": {
+    "chunk_size": 200,
+    "overlap": 20,
+    "scores": {
+      "faithfulness": 0.3708333333333333,
+      "answer_relevancy": 0.8445145549619966,
+      "context_precision": 0.33333333333333326,
+      "evaluated_count": 20
+    },
+    "test_cases": [
+      {
+        "id": "tc-001",
+        "question": "What happens if the buyer fails to close on the agreed date?",
+        "answer": "If the Buyer fails to close by the Closing Date, the Seller's sole remedy is the retention of the Earnest Money as liquidated damages.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par",
+          "r days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 busines",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money."
+      },
+      {
+        "id": "tc-002",
+        "question": "Can the buyer assign this contract to someone else?",
+        "answer": "According to Clause 2, yes, the Buyer may assign this Agreement to any third party, but Clause 6 suggests that Seller's consent may be required for such assignment, creating a potential contradiction. However, based on the provided Clause 2, the answer is yes.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par",
+          "] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the exec",
+          "ent to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Propert"
+        ],
+        "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements."
+      },
+      {
+        "id": "tc-003",
+        "question": "Does the seller provide any warranties about the property condition?",
+        "answer": "No, the Seller makes no representations or warranties regarding the condition of the Property, as stated in Clause 3. The Property is sold AS-IS, WHERE-IS, with all faults.",
+        "contexts": [
+          "ent to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Propert",
+          "] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the exec",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par"
+        ],
+        "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property."
+      },
+      {
+        "id": "tc-004",
+        "question": "What is the interest rate on the loan?",
+        "answer": "The interest rate on the loan is 14% per annum (simple interest), but it increases to 24% per annum upon default.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per an",
+          "e minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally gua",
+          "crease to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest o"
+        ],
+        "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance."
+      },
+      {
+        "id": "tc-005",
+        "question": "What are the consequences of defaulting on the loan?",
+        "answer": "According to Clause 2, upon default, the consequences are: \n1. Interest rate increases to 24% per annum, and \n2. The Lender may immediately foreclose on the collateral.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per an",
+          "crease to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest o",
+          "rower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Bor"
+        ],
+        "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust)."
+      },
+      {
+        "id": "tc-006",
+        "question": "Is there a prepayment penalty?",
+        "answer": "No, there is no prepayment penalty. According to Clause 3, \"Borrower may prepay the Loan at any time without penalty.\"",
+        "contexts": [
+          "crease to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest o",
+          "ent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent.",
+          "e minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally gua"
+        ],
+        "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest."
+      },
+      {
+        "id": "tc-007",
+        "question": "When is the origination fee paid and how much is it?",
+        "answer": "The origination fee is paid at funding and is 3 points, which equals $2,250, deducted from the Loan proceeds.",
+        "contexts": [
+          "e minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally gua",
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per an",
+          "rower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Bor"
+        ],
+        "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount."
+      },
+      {
+        "id": "tc-008",
+        "question": "Is there an exclusivity period in the LOI?",
+        "answer": "Yes, there is a 30-day exclusivity period, as stated in Clause 1, during which the Seller agrees not to solicit, entertain, or accept other offers for the Property.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding express",
+          "ds, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential.",
+          "non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer o"
+        ],
+        "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property."
+      },
+      {
+        "id": "tc-009",
+        "question": "Is the LOI legally binding?",
+        "answer": "No, the LOI is a non-binding expression of intent only, and neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding express",
+          "ds, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential.",
+          "non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer o"
+        ],
+        "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed."
+      },
+      {
+        "id": "tc-010",
+        "question": "What financing contingency does the buyer have?",
+        "answer": "The buyer has the right to obtain financing on terms satisfactory to them in their sole discretion.",
+        "contexts": [
+          "tingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing",
+          "non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer o",
+          "ds, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "The offer is contingent on the buyer obtaining financing on terms satisfactory to the buyer at the buyer's sole discretion. This gives the buyer broad authority to walk away if they cannot secure acceptable financing."
+      },
+      {
+        "id": "tc-011",
+        "question": "How are disputes resolved under this agreement?",
+        "answer": "Disputes are resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.",
+        "contexts": [
+          "ition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall conve",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par",
+          "r days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 busines"
+        ],
+        "ground_truth": "Disputes are resolved through binding arbitration in Dallas County, Texas, governed by AAA Commercial Rules. This means the parties cannot sue in court \u00e2\u20ac\u201d they must use arbitration."
+      },
+      {
+        "id": "tc-012",
+        "question": "What type of deed will the seller provide?",
+        "answer": "The seller shall convey marketable title by General Warranty Deed.",
+        "contexts": [
+          "] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the exec",
+          "ent to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Propert",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par"
+        ],
+        "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement."
+      },
+      {
+        "id": "tc-013",
+        "question": "How long does the buyer have to inspect the property?",
+        "answer": "The buyer has 10 calendar days from the execution date to inspect the property.",
+        "contexts": [
+          "r days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 busines",
+          "] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the exec",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money."
+      },
+      {
+        "id": "tc-014",
+        "question": "Who is personally liable for repaying the loan?",
+        "answer": "The rower (likely a typo and meant to be \"Borrower\") is personally liable for repaying the loan.",
+        "contexts": [
+          "rower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Bor",
+          "crease to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest o",
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per an"
+        ],
+        "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets."
+      },
+      {
+        "id": "tc-015",
+        "question": "When does the loan mature and can it be extended?",
+        "answer": "The loan matures 6 months from the date of funding. It can be extended, but only with the Lender's written consent.",
+        "contexts": [
+          "rower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Bor",
+          "crease to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest o",
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per an"
+        ],
+        "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic \u00e2\u20ac\u201d any extension requires the lender's written consent."
+      },
+      {
+        "id": "tc-016",
+        "question": "How much is the earnest money and when is it due?",
+        "answer": "The Earnest Money is $5,000 and it is due within 3 business days of execution.",
+        "contexts": [
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+          "r days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 busines",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par"
+        ],
+        "ground_truth": "The earnest money deposit is $5,000, due within 3 business days of executing the agreement."
+      },
+      {
+        "id": "tc-017",
+        "question": "What can the buyer do during the due diligence period?",
+        "answer": "According to Clause 4, during the due diligence period, the Buyer has the right to: \n1. Inspect the property\n2. Review financial records\n3. Obtain financing.",
+        "contexts": [
+          "tingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing",
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding express",
+          "non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer o"
+        ],
+        "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments."
+      },
+      {
+        "id": "tc-018",
+        "question": "Can the borrower place additional liens on the property?",
+        "answer": "No, the borrower cannot place additional liens on the property without the lender's prior written consent. (Clause 7)",
+        "contexts": [
+          "ent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent.",
+          "crease to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest o",
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per an"
+        ],
+        "ground_truth": "No. The borrower cannot place any additional liens on the property without obtaining the lender's prior written consent. Doing so would constitute a default."
+      },
+      {
+        "id": "tc-019",
+        "question": "What remedies does the buyer have if the seller fails to close?",
+        "answer": "According to Clause 8, if the Seller fails to close, the Buyer may seek: \n1. Specific performance, or \n2. Return of the Earnest Money plus $2,500 as liquidated damages.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third par",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+          "r days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 busines"
+        ],
+        "ground_truth": "If the seller fails to close, the buyer can either seek specific performance (court order forcing the sale) or receive the earnest money returned plus $2,500 as liquidated damages."
+      },
+      {
+        "id": "tc-020",
+        "question": "Are the LOI terms confidential?",
+        "answer": "Yes, according to Clause 5, the terms of the LOI shall remain confidential.",
+        "contexts": [
+          "ds, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential.",
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding express",
+          "non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer o"
+        ],
+        "ground_truth": "Yes. The terms of the LOI are confidential and cannot be disclosed to third parties."
+      }
+    ],
+    "timestamp": "2026-06-09T17:37:38.413674Z"
+  },
+  "500": {
+    "chunk_size": 500,
+    "overlap": 50,
+    "scores": {
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.8464112497849992,
+      "context_precision": 0.36363636363636365,
+      "evaluated_count": 11
+    },
+    "test_cases": [
+      {
+        "id": "tc-001",
+        "question": "What happens if the buyer fails to close on the agreed date?",
+        "answer": "If the Buyer fails to close by the Closing Date, the Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texa",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+          "lved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8"
+        ],
+        "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money."
+      },
+      {
+        "id": "tc-002",
+        "question": "Can the buyer assign this contract to someone else?",
+        "answer": "Yes, according to Clause 2, the Buyer may assign this Agreement to any third party without Seller's consent.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texa",
+          "lved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements."
+      },
+      {
+        "id": "tc-003",
+        "question": "Does the seller provide any warranties about the property condition?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-004",
+        "question": "What is the interest rate on the loan?",
+        "answer": "The interest rate on the loan is 14% per annum (simple interest), but it increases to 24% per annum upon default.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at fu",
+          "nts ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance."
+      },
+      {
+        "id": "tc-005",
+        "question": "What are the consequences of defaulting on the loan?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust).",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-006",
+        "question": "Is there a prepayment penalty?",
+        "answer": "No, according to Clause 3, Borrower may prepay the Loan at any time without penalty.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at fu",
+          "nts ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest."
+      },
+      {
+        "id": "tc-007",
+        "question": "When is the origination fee paid and how much is it?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-008",
+        "question": "Is there an exclusivity period in the LOI?",
+        "answer": "Yes, there is a 30-day exclusivity period, as stated in Clause 1, during which the Seller cannot solicit, entertain, or accept other offers for the Property.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to insp",
+          "on.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property."
+      },
+      {
+        "id": "tc-009",
+        "question": "Is the LOI legally binding?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-010",
+        "question": "What financing contingency does the buyer have?",
+        "answer": "The buyer has a financing contingency that allows them to obtain financing on terms satisfactory to the buyer in its sole discretion, as stated in Clause 3.",
+        "contexts": [
+          "on.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential.",
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to insp"
+        ],
+        "ground_truth": "The offer is contingent on the buyer obtaining financing on terms satisfactory to the buyer at the buyer's sole discretion. This gives the buyer broad authority to walk away if they cannot secure acceptable financing."
+      },
+      {
+        "id": "tc-011",
+        "question": "How are disputes resolved under this agreement?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "Disputes are resolved through binding arbitration in Dallas County, Texas, governed by AAA Commercial Rules. This means the parties cannot sue in court \u00e2\u20ac\u201d they must use arbitration.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-012",
+        "question": "What type of deed will the seller provide?",
+        "answer": "The Seller shall convey marketable title by General Warranty Deed.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texa",
+          "lved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement."
+      },
+      {
+        "id": "tc-013",
+        "question": "How long does the buyer have to inspect the property?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-014",
+        "question": "Who is personally liable for repaying the loan?",
+        "answer": "The principals of the Borrower are personally liable for repaying the Loan.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at fu",
+          "nts ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets."
+      },
+      {
+        "id": "tc-015",
+        "question": "When does the loan mature and can it be extended?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic \u00e2\u20ac\u201d any extension requires the lender's written consent.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-016",
+        "question": "How much is the earnest money and when is it due?",
+        "answer": "The Earnest Money Deposit is $5,000 and it is due within 3 business days of execution.",
+        "contexts": [
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+          "lved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texa"
+        ],
+        "ground_truth": "The earnest money deposit is $5,000, due within 3 business days of executing the agreement."
+      },
+      {
+        "id": "tc-017",
+        "question": "What can the buyer do during the due diligence period?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-018",
+        "question": "Can the borrower place additional liens on the property?",
+        "answer": "No, the borrower cannot place additional liens on the property without the lender's prior written consent (Clause 7).",
+        "contexts": [
+          "nts ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent.",
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at fu"
+        ],
+        "ground_truth": "No. The borrower cannot place any additional liens on the property without obtaining the lender's prior written consent. Doing so would constitute a default."
+      },
+      {
+        "id": "tc-019",
+        "question": "What remedies does the buyer have if the seller fails to close?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "If the seller fails to close, the buyer can either seek specific performance (court order forcing the sale) or receive the earnest money returned plus $2,500 as liquidated damages.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-020",
+        "question": "Are the LOI terms confidential?",
+        "answer": "Yes, according to Clause 5, the terms of the LOI shall remain confidential.",
+        "contexts": [
+          "on.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential.",
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to insp"
+        ],
+        "ground_truth": "Yes. The terms of the LOI are confidential and cannot be disclosed to third parties."
+      }
+    ],
+    "timestamp": "2026-06-09T17:38:52.382399Z"
+  },
+  "750": {
+    "chunk_size": 750,
+    "overlap": 75,
+    "scores": {
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.8352586209938392,
+      "context_precision": 0.6363636363636364,
+      "evaluated_count": 11
+    },
+    "test_cases": [
+      {
+        "id": "tc-001",
+        "question": "What happens if the buyer fails to close on the agreed date?",
+        "answer": "If the Buyer fails to close by the Closing Date, the Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date",
+          "rein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money."
+      },
+      {
+        "id": "tc-002",
+        "question": "Can the buyer assign this contract to someone else?",
+        "answer": "Yes, according to Clause 2, the Buyer may assign this Agreement to any third party without the Seller's consent.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date",
+          "rein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements."
+      },
+      {
+        "id": "tc-003",
+        "question": "Does the seller provide any warranties about the property condition?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-004",
+        "question": "What is the interest rate on the loan?",
+        "answer": "The interest rate on the loan is 14% per annum (simple interest), but it increases to 24% per annum upon default.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shal",
+          "hall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance."
+      },
+      {
+        "id": "tc-005",
+        "question": "What are the consequences of defaulting on the loan?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust).",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-006",
+        "question": "Is there a prepayment penalty?",
+        "answer": "No, there is no prepayment penalty. According to Clause 3, Borrower may prepay the Loan at any time without penalty.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shal",
+          "hall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest."
+      },
+      {
+        "id": "tc-007",
+        "question": "When is the origination fee paid and how much is it?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-008",
+        "question": "Is there an exclusivity period in the LOI?",
+        "answer": "Yes, there is a 30-day exclusivity period, as stated in Clause 1, during which the Seller cannot solicit, entertain, or accept other offers for the Property.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property."
+      },
+      {
+        "id": "tc-009",
+        "question": "Is the LOI legally binding?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-010",
+        "question": "What financing contingency does the buyer have?",
+        "answer": "The buyer has a financing contingency that allows them to obtain financing on terms satisfactory to the buyer in its sole discretion.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "The offer is contingent on the buyer obtaining financing on terms satisfactory to the buyer at the buyer's sole discretion. This gives the buyer broad authority to walk away if they cannot secure acceptable financing."
+      },
+      {
+        "id": "tc-011",
+        "question": "How are disputes resolved under this agreement?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "Disputes are resolved through binding arbitration in Dallas County, Texas, governed by AAA Commercial Rules. This means the parties cannot sue in court \u00e2\u20ac\u201d they must use arbitration.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-012",
+        "question": "What type of deed will the seller provide?",
+        "answer": "The Seller shall convey marketable title by General Warranty Deed.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date",
+          "rein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement."
+      },
+      {
+        "id": "tc-013",
+        "question": "How long does the buyer have to inspect the property?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-014",
+        "question": "Who is personally liable for repaying the loan?",
+        "answer": "The principals of the Borrower are personally liable for repaying the loan.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shal",
+          "hall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets."
+      },
+      {
+        "id": "tc-015",
+        "question": "When does the loan mature and can it be extended?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic \u00e2\u20ac\u201d any extension requires the lender's written consent.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-016",
+        "question": "How much is the earnest money and when is it due?",
+        "answer": "The Earnest Money Deposit is $5,000 and it is due within 3 business days of execution.",
+        "contexts": [
+          "rein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date"
+        ],
+        "ground_truth": "The earnest money deposit is $5,000, due within 3 business days of executing the agreement."
+      },
+      {
+        "id": "tc-017",
+        "question": "What can the buyer do during the due diligence period?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-018",
+        "question": "Can the borrower place additional liens on the property?",
+        "answer": "No, not without the Lender's prior written consent.",
+        "contexts": [
+          "hall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent.",
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shal"
+        ],
+        "ground_truth": "No. The borrower cannot place any additional liens on the property without obtaining the lender's prior written consent. Doing so would constitute a default."
+      },
+      {
+        "id": "tc-019",
+        "question": "What remedies does the buyer have if the seller fails to close?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "If the seller fails to close, the buyer can either seek specific performance (court order forcing the sale) or receive the earnest money returned plus $2,500 as liquidated damages.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-020",
+        "question": "Are the LOI terms confidential?",
+        "answer": "Yes, according to Clause 5, the terms of the LOI shall remain confidential.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "Yes. The terms of the LOI are confidential and cannot be disclosed to third parties."
+      }
+    ],
+    "timestamp": "2026-06-09T17:40:02.969770Z"
+  },
+  "1000": {
+    "chunk_size": 1000,
+    "overlap": 100,
+    "scores": {
+      "faithfulness": 0.14666666666666667,
+      "answer_relevancy": 0.8586039527403653,
+      "context_precision": 0.8,
+      "evaluated_count": 15
+    },
+    "test_cases": [
+      {
+        "id": "tc-001",
+        "question": "What happens if the buyer fails to close on the agreed date?",
+        "answer": "If the Buyer fails to close by the Closing Date, the Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specifi",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money."
+      },
+      {
+        "id": "tc-002",
+        "question": "Can the buyer assign this contract to someone else?",
+        "answer": "Yes, according to Clause 2, the Buyer may assign this Agreement to any third party without Seller's consent.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specifi",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements."
+      },
+      {
+        "id": "tc-003",
+        "question": "Does the seller provide any warranties about the property condition?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-004",
+        "question": "What is the interest rate on the loan?",
+        "answer": "The interest rate on the loan is 14% per annum (simple interest), but it increases to 24% per annum upon default.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance."
+      },
+      {
+        "id": "tc-005",
+        "question": "What are the consequences of defaulting on the loan?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust).",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-006",
+        "question": "Is there a prepayment penalty?",
+        "answer": "No, there is no prepayment penalty. According to Clause 3, Borrower may prepay the Loan at any time without penalty.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest."
+      },
+      {
+        "id": "tc-007",
+        "question": "When is the origination fee paid and how much is it?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-008",
+        "question": "Is there an exclusivity period in the LOI?",
+        "answer": "Yes, there is a 30-day exclusivity period, as stated in Clause 1, during which the Seller agrees not to solicit, entertain, or accept other offers for the Property.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property."
+      },
+      {
+        "id": "tc-009",
+        "question": "Is the LOI legally binding?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-010",
+        "question": "What financing contingency does the buyer have?",
+        "answer": "The buyer has a financing contingency that allows them to obtain financing on terms satisfactory to the buyer in its sole discretion.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "The offer is contingent on the buyer obtaining financing on terms satisfactory to the buyer at the buyer's sole discretion. This gives the buyer broad authority to walk away if they cannot secure acceptable financing."
+      },
+      {
+        "id": "tc-011",
+        "question": "How are disputes resolved under this agreement?",
+        "answer": "",
+        "contexts": [],
+        "ground_truth": "Disputes are resolved through binding arbitration in Dallas County, Texas, governed by AAA Commercial Rules. This means the parties cannot sue in court \u00e2\u20ac\u201d they must use arbitration.",
+        "error": "429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      },
+      {
+        "id": "tc-012",
+        "question": "What type of deed will the seller provide?",
+        "answer": "The Seller shall convey marketable title by General Warranty Deed.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specifi",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement."
+      },
+      {
+        "id": "tc-013",
+        "question": "How long does the buyer have to inspect the property?",
+        "answer": "The buyer has 10 calendar days from the execution date to inspect the property.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specifi",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money."
+      },
+      {
+        "id": "tc-014",
+        "question": "Who is personally liable for repaying the loan?",
+        "answer": "The principals of the Borrower are personally liable for repaying the Loan.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets."
+      },
+      {
+        "id": "tc-015",
+        "question": "When does the loan mature and can it be extended?",
+        "answer": "The Loan matures 6 months from the date of funding. No extensions shall be granted without the Lender's written consent.",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic \u00e2\u20ac\u201d any extension requires the lender's written consent."
+      },
+      {
+        "id": "tc-016",
+        "question": "How much is the earnest money and when is it due?",
+        "answer": "The Earnest Money Deposit is $5,000 and it is due within 3 business days of execution.",
+        "contexts": [
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages.",
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specifi"
+        ],
+        "ground_truth": "The earnest money deposit is $5,000, due within 3 business days of executing the agreement."
+      },
+      {
+        "id": "tc-017",
+        "question": "What can the buyer do during the due diligence period?",
+        "answer": "According to Clause 4, during the due diligence period, the Buyer can: \n1. Inspect the property\n2. Review financial records\n3. Obtain financing commitments\n4. Conduct environmental assessments.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments."
+      },
+      {
+        "id": "tc-018",
+        "question": "Can the borrower place additional liens on the property?",
+        "answer": "No, the borrower cannot place additional liens on the property without the lender's prior written consent. (Clause 7)",
+        "contexts": [
+          "[Clause 1] The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\n\n[Clause 2] Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\n\n[Clause 3] Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months.\n\n[Clause 4] Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\n\n[Clause 5] The principals of Borrower personally guarantee repayment of this Loan.\n\n[Clause 6] The Loan shall mature 6 months from the date of funding. No extensions shall be granted without Lender's written consent.\n\n[Clause 7] Borrower shall not place any additional liens on the Property without Lender's prior written consent."
+        ],
+        "ground_truth": "No. The borrower cannot place any additional liens on the property without obtaining the lender's prior written consent. Doing so would constitute a default."
+      },
+      {
+        "id": "tc-019",
+        "question": "What remedies does the buyer have if the seller fails to close?",
+        "answer": "According to Clause 8, if the Seller fails to close, the Buyer may seek: \n1. Specific performance, or \n2. Return of the Earnest Money plus $2,500 as liquidated damages.",
+        "contexts": [
+          "[Clause 1] If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\n\n[Clause 2] Buyer may assign this Agreement to any third party without Seller's consent.\n\n[Clause 3] The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property.\n\n[Clause 4] Any disputes arising under this Agreement shall be resolved by binding arbitration in Dallas County, Texas under AAA Commercial Rules.\n\n[Clause 5] Seller shall convey marketable title by General Warranty Deed, free and clear of all liens and encumbrances except those specified herein.\n\n[Clause 6] Buyer shall have 10 calendar days from the execution date to inspect the Property. Buyer may terminate this Agreement for any reason during the inspection period.\n\n[Clause 7] Earnest Money Deposit of $5,000 due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specifi",
+          "due within 3 business days of execution\n\n[Clause 8] If Seller fails to close, Buyer may seek specific performance or return of the Earnest Money plus $2,500 as liquidated damages."
+        ],
+        "ground_truth": "If the seller fails to close, the buyer can either seek specific performance (court order forcing the sale) or receive the earnest money returned plus $2,500 as liquidated damages."
+      },
+      {
+        "id": "tc-020",
+        "question": "Are the LOI terms confidential?",
+        "answer": "Yes, according to Clause 5, the terms of the LOI shall remain confidential.",
+        "contexts": [
+          "[Clause 1] During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\n\n[Clause 2] This LOI is a non-binding expression of intent only. Neither party shall be legally obligated unless and until a formal Purchase Agreement has been fully executed.\n\n[Clause 3] This offer is contingent upon Buyer obtaining financing on terms satisfactory to Buyer in its sole discretion.\n\n[Clause 4] Buyer shall have the right to inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.\n\n[Clause 5] The terms of this LOI shall remain confidential."
+        ],
+        "ground_truth": "Yes. The terms of the LOI are confidential and cannot be disclosed to third parties."
+      }
+    ],
+    "timestamp": "2026-06-09T17:41:43.555242Z"
+  }
+}

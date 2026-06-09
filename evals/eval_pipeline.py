@@ -25,9 +25,20 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent / ".env")
 
 API_BASE = os.getenv("API_BASE_URL", "http://localhost:8080")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_API_KEY   = os.getenv("OPENAI_API_KEY", "")
+LLM_API_KEY      = os.getenv("LLM_API_KEY", OPENAI_API_KEY)
+LLM_BASE_URL     = os.getenv("LLM_BASE_URL", "")          # empty = OpenAI default
+LLM_MODEL        = os.getenv("LLM_MODEL", "gpt-4o-mini")
+EMBED_API_KEY    = os.getenv("EMBEDDING_API_KEY", OPENAI_API_KEY)
+EMBED_BASE_URL   = os.getenv("EMBEDDING_BASE_URL", "")     # empty = OpenAI default
+EMBED_MODEL      = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
 TEST_CASES_PATH = Path(__file__).parent / "test_cases.json"
 RESULTS_DIR = Path(__file__).parent
+RAGAS_METRICS = ("faithfulness", "answer_relevancy", "context_precision")
+
+
+def format_metric_name(metric: str) -> str:
+    return metric.replace("_", " ").title()
 
 
 def load_test_cases() -> list[dict]:
@@ -106,17 +117,22 @@ def collect_rag_data(test_cases: list[dict]) -> list[dict]:
 
 
 def run_ragas(rag_data: list[dict]) -> dict:
-    """Run RAGAS faithfulness + answer_relevancy on the collected data."""
+    """Run RAGAS faithfulness, answer_relevancy, and context_precision."""
     try:
         from datasets import Dataset
         from ragas import evaluate
-        from ragas.metrics import faithfulness, answer_relevancy
+        from ragas.metrics import faithfulness, answer_relevancy, context_precision
         from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
         valid = [d for d in rag_data if d.get("contexts") and d.get("answer")]
         if not valid:
             print("  No valid data rows for RAGAS evaluation.")
-            return {"faithfulness": 0.0, "answer_relevancy": 0.0, "evaluated_count": 0}
+            return {
+                "faithfulness": 0.0,
+                "answer_relevancy": 0.0,
+                "context_precision": 0.0,
+                "evaluated_count": 0,
+            }
 
         dataset = Dataset.from_list([
             {
@@ -128,12 +144,19 @@ def run_ragas(rag_data: list[dict]) -> dict:
             for d in valid
         ])
 
-        llm = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY)
-        embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
+        llm_kwargs = {"api_key": LLM_API_KEY, "model": LLM_MODEL}
+        if LLM_BASE_URL:
+            llm_kwargs["base_url"] = LLM_BASE_URL
+        llm = ChatOpenAI(**llm_kwargs)
+
+        emb_kwargs = {"api_key": EMBED_API_KEY, "model": EMBED_MODEL}
+        if EMBED_BASE_URL:
+            emb_kwargs["base_url"] = EMBED_BASE_URL
+        embeddings = OpenAIEmbeddings(**emb_kwargs)
 
         result = evaluate(
             dataset=dataset,
-            metrics=[faithfulness, answer_relevancy],
+            metrics=[faithfulness, answer_relevancy, context_precision],
             llm=llm,
             embeddings=embeddings,
         )
@@ -141,12 +164,18 @@ def run_ragas(rag_data: list[dict]) -> dict:
         return {
             "faithfulness": float(result["faithfulness"]),
             "answer_relevancy": float(result["answer_relevancy"]),
+            "context_precision": float(result["context_precision"]),
             "evaluated_count": len(valid),
         }
 
     except ImportError as e:
         print(f"  RAGAS import failed: {e}. Install requirements.txt first.")
-        return {"faithfulness": 0.0, "answer_relevancy": 0.0, "evaluated_count": 0}
+        return {
+            "faithfulness": 0.0,
+            "answer_relevancy": 0.0,
+            "context_precision": 0.0,
+            "evaluated_count": 0,
+        }
 
 
 def save_results(mode: str, rag_data: list[dict], scores: dict):
@@ -184,12 +213,12 @@ def compare_results():
     print("=" * 60)
     print(f"{'Metric':<25} {'Baseline':>12} {'Re-ranked':>12} {'Delta':>10}")
     print("-" * 60)
-    for metric in ["faithfulness", "answer_relevancy"]:
+    for metric in RAGAS_METRICS:
         bv = b_scores.get(metric, 0)
         rv = r_scores.get(metric, 0)
         delta = rv - bv
         sign = "+" if delta >= 0 else ""
-        print(f"  {metric:<23} {bv:>12.4f} {rv:>12.4f} {sign}{delta:>9.4f}")
+        print(f"  {format_metric_name(metric):<23} {bv:>12.4f} {rv:>12.4f} {sign}{delta:>9.4f}")
     print("=" * 60)
     print(f"  Baseline timestamp:  {baseline['timestamp']}")
     print(f"  Re-ranked timestamp: {reranked['timestamp']}")
@@ -210,8 +239,8 @@ def main():
         compare_results()
         return
 
-    if not OPENAI_API_KEY:
-        print("ERROR: OPENAI_API_KEY not set. Export it before running.")
+    if not LLM_API_KEY:
+        print("ERROR: Neither LLM_API_KEY nor OPENAI_API_KEY is set.")
         sys.exit(1)
 
     print(f"\nRunning RAGAS eval in mode: {args.mode}")
@@ -226,8 +255,8 @@ def main():
     print("\nStep 2: Running RAGAS evaluation...")
     scores = run_ragas(rag_data)
 
-    print(f"\n  Faithfulness:      {scores['faithfulness']:.4f}")
-    print(f"  Answer Relevancy:  {scores['answer_relevancy']:.4f}")
+    for metric in RAGAS_METRICS:
+        print(f"  {format_metric_name(metric):<18}: {scores[metric]:.4f}")
     print(f"  Evaluated cases:   {scores['evaluated_count']}")
 
     save_results(args.mode, rag_data, scores)

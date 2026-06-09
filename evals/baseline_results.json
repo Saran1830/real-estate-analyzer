@@ -1,76 +1,148 @@
 {
-  "mode": "reranked",
-  "timestamp": "2026-06-09T18:46:36.239498+00:00",
+  "mode": "baseline",
+  "timestamp": "2026-06-09T18:45:15.093353+00:00",
   "scores": {
-    "faithfulness": 0.0,
-    "answer_relevancy": 0.0,
-    "context_precision": 0.0,
-    "evaluated_count": 0
+    "faithfulness": 0.9791666666666666,
+    "answer_relevancy": 0.8045493290997658,
+    "context_precision": 0.9999999999,
+    "evaluated_count": 8
   },
   "test_cases": [
     {
       "id": "tc-001",
       "question": "What happens if the buyer fails to close on the agreed date?",
-      "answer": "",
-      "contexts": [],
+      "answer": "According to the provided document excerpt, if the Buyer fails to close by the Closing Date, the Seller's sole remedy shall be retention of the Earnest Money as liquidated damages. \" If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages.\"",
+      "contexts": [
+        "If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated damages."
+      ],
       "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.8988724695738095,
+          "rerankScore": 0.99910307,
+          "excerpt": "If Buyer fails to close by the Closing Date, Seller's sole remedy shall be retention of the Earnest Money as liquidated ..."
+        }
+      ]
     },
     {
       "id": "tc-002",
       "question": "Can the buyer assign this contract to someone else?",
-      "answer": "",
-      "contexts": [],
+      "answer": "According to the document excerpt, the Buyer may assign this Agreement to any third party without Seller's consent. \"Buyer may assign this Agreement to any third party without Seller's consent.\"",
+      "contexts": [
+        "Buyer may assign this Agreement to any third party without Seller's consent."
+      ],
       "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.9076479597449584,
+          "rerankScore": 0.99980134,
+          "excerpt": "Buyer may assign this Agreement to any third party without Seller's consent."
+        }
+      ]
     },
     {
       "id": "tc-003",
       "question": "Does the seller provide any warranties about the property condition?",
-      "answer": "",
-      "contexts": [],
+      "answer": "According to the document excerpt, the seller makes no representations or warranties regarding the condition of the Property. The relevant clause text is: \"Seller makes no representations or warranties regarding the condition of the Property.\"",
+      "contexts": [
+        "The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condition of the Property."
+      ],
       "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.9284103220415287,
+          "rerankScore": 0.9989718,
+          "excerpt": "The Property is sold AS-IS, WHERE-IS, with all faults. Seller makes no representations or warranties regarding the condi..."
+        }
+      ]
     },
     {
       "id": "tc-004",
       "question": "What is the interest rate on the loan?",
-      "answer": "",
-      "contexts": [],
+      "answer": "The interest rate on the loan is 14% per annum (simple interest), calculated on the outstanding principal balance. \"The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance.\"",
+      "contexts": [
+        "The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal balance."
+      ],
       "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.9271576189884815,
+          "rerankScore": 0.9959299,
+          "excerpt": "The Loan shall bear interest at the rate of 14% per annum (simple interest), calculated on the outstanding principal bal..."
+        }
+      ]
     },
     {
       "id": "tc-005",
       "question": "What are the consequences of defaulting on the loan?",
-      "answer": "",
-      "contexts": [],
+      "answer": "According to the provided document excerpt, upon default, interest shall increase to 24% per annum and the Lender may immediately foreclose on the collateral. \"Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral.\"",
+      "contexts": [
+        "Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral."
+      ],
       "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust).",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.8678775532060627,
+          "rerankScore": 0.5254601,
+          "excerpt": "Upon default, interest shall increase to 24% per annum and Lender may immediately foreclose on the collateral."
+        }
+      ]
     },
     {
       "id": "tc-006",
       "question": "Is there a prepayment penalty?",
-      "answer": "",
-      "contexts": [],
+      "answer": "According to the document excerpt, \"Borrower may prepay the Loan at any time without penalty.\" This indicates that there is no prepayment penalty.",
+      "contexts": [
+        "Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months."
+      ],
       "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.8684292172105483,
+          "rerankScore": 0.9562273,
+          "excerpt": "Borrower may prepay the Loan at any time without penalty. Prepayment shall not reduce the minimum interest of 3 months."
+        }
+      ]
     },
     {
       "id": "tc-007",
       "question": "When is the origination fee paid and how much is it?",
-      "answer": "",
-      "contexts": [],
+      "answer": "The origination fee is paid when the Loan proceeds are funded. The amount of the origination fee is $2,250, which is equivalent to 3 points. \" Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding.\"",
+      "contexts": [
+        "Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding."
+      ],
       "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.9031338929977868,
+          "rerankScore": 0.90632194,
+          "excerpt": "Borrower shall pay an origination fee of 3 points ($2,250) deducted from the Loan proceeds at funding."
+        }
+      ]
     },
     {
       "id": "tc-008",
       "question": "Is there an exclusivity period in the LOI?",
-      "answer": "",
-      "contexts": [],
+      "answer": "Yes, there is an exclusivity period in the LOI. The relevant clause states: \"During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property.\"",
+      "contexts": [
+        "During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other offers for the Property."
+      ],
       "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "rerank_scores": [
+        {
+          "originalIndex": 0,
+          "cosineScore": 0.8648495365576574,
+          "rerankScore": 0.69440633,
+          "excerpt": "During the 30-day period following execution of this LOI, Seller agrees not to solicit, entertain, or accept any other o..."
+        }
+      ]
     },
     {
       "id": "tc-009",
@@ -78,7 +150,7 @@
       "answer": "",
       "contexts": [],
       "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
     },
     {
       "id": "tc-010",
@@ -102,7 +174,7 @@
       "answer": "",
       "contexts": [],
       "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
     },
     {
       "id": "tc-013",
@@ -110,7 +182,7 @@
       "answer": "",
       "contexts": [],
       "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
     },
     {
       "id": "tc-014",
@@ -118,7 +190,7 @@
       "answer": "",
       "contexts": [],
       "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
     },
     {
       "id": "tc-015",
@@ -126,7 +198,7 @@
       "answer": "",
       "contexts": [],
       "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic \u00e2\u20ac\u201d any extension requires the lender's written consent.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
+      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
     },
     {
       "id": "tc-016",
@@ -142,7 +214,7 @@
       "answer": "",
       "contexts": [],
       "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.",
-      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/analyze"
+      "error": "500 Server Error:  for url: http://localhost:8080/api/compliance/ask"
     },
     {
       "id": "tc-018",

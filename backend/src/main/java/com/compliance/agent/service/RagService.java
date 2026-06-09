@@ -7,7 +7,6 @@ import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import dev.langchain4j.store.embedding.EmbeddingSearchRequest;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
@@ -27,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RagService {
 
-    private final OpenAiEmbeddingModel embeddingModel;
+    private final ComplianceEmbeddingModel embeddingModel;
 
     @Value("${chroma.base.url}")
     private String chromaBaseUrl;
@@ -75,7 +74,7 @@ public class RagService {
             }
         }
 
-        List<Embedding> embeddings = embeddingModel.embedAll(childSegments).content();
+        List<Embedding> embeddings = embeddingModel.embedAll(childSegments);
         store.addAll(embeddings, childSegments);
 
         log.info("Ingested {} parent chunks → {} child chunks for session={}",
@@ -87,7 +86,7 @@ public class RagService {
         String safeQuery = requireQuery(query);
         touch(safeSessionId);
         ChromaEmbeddingStore store = getOrCreateStore(safeSessionId);
-        Embedding queryEmbedding = embeddingModel.embed(safeQuery).content();
+        Embedding queryEmbedding = embeddingModel.embed(safeQuery);
 
         // Retrieve top-k child chunks by cosine similarity
         EmbeddingSearchRequest request = EmbeddingSearchRequest.builder()

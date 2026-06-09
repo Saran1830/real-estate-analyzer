@@ -1,10 +1,15 @@
 package com.compliance.agent.config;
 
+import com.compliance.agent.service.ComplianceEmbeddingModel;
+import com.compliance.agent.service.NomicEmbeddingModel;
+import com.compliance.agent.service.OpenAiEmbeddingAdapter;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
 
@@ -46,14 +51,17 @@ public class LangChainConfig {
     }
 
     @Bean
-    public OpenAiEmbeddingModel openAiEmbeddingModel() {
-        var builder = OpenAiEmbeddingModel.builder()
+    public ComplianceEmbeddingModel complianceEmbeddingModel(
+            @Qualifier("embeddingRestClient") RestClient embeddingRestClient) {
+        if (!embeddingBaseUrl.isBlank()) {
+            return new NomicEmbeddingModel(embeddingRestClient, embeddingApiKey, embeddingBaseUrl, embeddingModel);
+        }
+
+        OpenAiEmbeddingModel delegate = OpenAiEmbeddingModel.builder()
                 .apiKey(embeddingApiKey)
                 .modelName(embeddingModel)
-                .timeout(Duration.ofSeconds(30));
-        if (!embeddingBaseUrl.isBlank()) {
-            builder.baseUrl(embeddingBaseUrl);
-        }
-        return builder.build();
+                .timeout(Duration.ofSeconds(30))
+                .build();
+        return new OpenAiEmbeddingAdapter(delegate);
     }
 }

@@ -26,6 +26,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DealAnalyzerOrchestrator {
 
+    private static final int MAX_CONTEXT_CHARS = 4_000;
+    private static final int MAX_MARKET_CHARS = 8_000;
+    private static final int MAX_TEXT_CHARS = 1_000;
+    private static final int MAX_LIST_ITEMS = 10;
+    private static final int MAX_LIST_ITEM_CHARS = 200;
+
     private final OpenAiChatModel chatModel;
     private final RagService ragService;
     private final WebSearchService webSearchService;
@@ -37,7 +43,7 @@ public class DealAnalyzerOrchestrator {
         List<NodeExecution> trace = new ArrayList<>();
 
         String parentRunId = langSmithService.startRun("deal-analysis", "chain",
-                Map.of("address", request.address() != null ? request.address() : "",
+                Map.of("addressProvided", request.address() != null && !request.address().isBlank(),
                         "docCount", request.documents().size()), null);
 
         // Node 1 — optional web search for market data
@@ -59,7 +65,8 @@ public class DealAnalyzerOrchestrator {
             return "";
         }
         long start = System.currentTimeMillis();
-        String runId = langSmithService.startRun("web_search", "tool", Map.of("address", address), parentRunId);
+        String runId = langSmithService.startRun("web_search", "tool",
+                Map.of("addressProvided", true, "addressLength", address.length()), parentRunId);
         String data = webSearchService.searchMarketData(address);
         long latency = System.currentTimeMillis() - start;
         String status = data.isEmpty() ? "NO_RESULTS" : "OK";
@@ -82,11 +89,12 @@ public class DealAnalyzerOrchestrator {
             langSmithService.endRun(runId, Map.of("status", "ok", "docs", documents.size()), null);
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
-            String msg = e.getClass().getSimpleName() + ": " + e.getMessage();
-            trace.add(new NodeExecution("ingest", "ERROR", latency, msg));
-            langSmithService.endRun(runId, null, msg);
-            log.error("Deal ingest failed for session={}: {}", sessionId, msg, e);
-            throw new IllegalStateException("Document ingestion failed: " + msg, e);
+            String detail = "Document ingestion failed.";
+            trace.add(new NodeExecution("ingest", "ERROR", latency, detail));
+            langSmithService.endRun(runId, null, detail);
+            log.error("Deal ingest failed for session={}: {}",
+                    LlmUtils.safeIdentifier(sessionId, 32), detail, e);
+            throw new IllegalStateException(detail, e);
         }
     }
 
@@ -97,11 +105,16 @@ public class DealAnalyzerOrchestrator {
         String runId = langSmithService.startRun("deal_analyze", "llm",
                 Map.of("docCount", request.documents().size()), parentRunId);
 
-        String propertyContext = buildPropertyContext(request);
+        String propertyContext = LlmUtils.wrapAsUntrustedBlock("PROPERTY_CONTEXT", buildPropertyContext(request));
         String marketSection = marketData.isEmpty() ? "" :
-                "Market Data (live web search):\n" + marketData + "\n";
+                "Market Data (live web search):\n" +
+                        LlmUtils.wrapAsUntrustedBlock("MARKET_DATA",
+                                LlmUtils.sanitizeText(marketData, MAX_MARKET_CHARS)) + "\n";
         String docsText = request.documents().stream()
-                .map(d -> "=== " + d.name() + " [" + d.type() + "] ===\n" + truncate(d.text(), 4000))
+                .map(d -> LlmUtils.wrapAsUntrustedBlock("DOCUMENT",
+                        "=== " + LlmUtils.safeIdentifier(d.name(), 255) + " ["
+                                + LlmUtils.safeIdentifier(d.type(), 100) + "] ===\n"
+                                + LlmUtils.sanitizeText(d.text(), MAX_CONTEXT_CHARS)))
                 .collect(Collectors.joining("\n\n"));
 
         String prompt = DealPromptTemplates.DEAL_ANALYSIS_PROMPT
@@ -116,8 +129,8 @@ public class DealAnalyzerOrchestrator {
 
         try {
             JsonNode json = objectMapper.readTree(cleaned);
-            String verdict = json.path("verdict").asText("PASS");
-            int score = json.path("score").asInt(50);
+            String verdict = normalizeVerdict(json.path("verdict").asText(null));
+            int score = LlmUtils.clamp(json.path("score").asInt(50), 0, 100);
 
             trace.add(new NodeExecution("deal_analyze", "OK", latency,
                     "Verdict: " + verdict + " | Score: " + score));
@@ -125,37 +138,39 @@ public class DealAnalyzerOrchestrator {
 
             return new DealAnalysisResponse(
                     sessionId, verdict, score,
-                    json.path("strategy").asText("UNKNOWN"),
-                    json.path("framework").asText("QUALITATIVE"),
+                    normalizeStrategy(json.path("strategy").asText(null)),
+                    normalizeFramework(json.path("framework").asText(null)),
                     parseFinancials(json.path("financials")),
-                    json.path("marketNotes").asText(""),
+                    LlmUtils.sanitizeText(json.path("marketNotes").asText(""), MAX_MARKET_CHARS),
                     parseStringList(json.path("riskFactors")),
                     parseStringList(json.path("complianceFlags")),
-                    json.path("summary").asText(""),
-                    json.path("recommendation").asText(""),
+                    LlmUtils.sanitizeText(json.path("summary").asText(""), MAX_TEXT_CHARS),
+                    LlmUtils.sanitizeText(json.path("recommendation").asText(""), MAX_TEXT_CHARS),
                     trace
             );
 
         } catch (JsonProcessingException e) {
-            log.error("Failed to parse deal analysis response: {}", e.getMessage());
-            trace.add(new NodeExecution("deal_analyze", "PARSE_ERROR", latency, e.getMessage()));
-            langSmithService.endRun(runId, null, e.getMessage());
+            String message = LlmUtils.sanitizeForLog(e.getMessage(), 200);
+            log.error("Failed to parse deal analysis response: {}", message);
+            trace.add(new NodeExecution("deal_analyze", "PARSE_ERROR", latency, message));
+            langSmithService.endRun(runId, null, message);
             return new DealAnalysisResponse(sessionId, "UNKNOWN", 0, "UNKNOWN", "QUALITATIVE",
                     null, "", List.of(), List.of(),
-                    "Analysis completed but response could not be parsed.", llmResponse, trace);
+                    "Analysis completed but response could not be parsed.",
+                    "Analysis completed but response could not be parsed.", trace);
         }
     }
 
     private String buildPropertyContext(DealAnalysisRequest req) {
         StringBuilder sb = new StringBuilder();
         if (req.address() != null && !req.address().isBlank())
-            sb.append("Address: ").append(req.address()).append("\n");
+            sb.append("Address: ").append(LlmUtils.sanitizeText(req.address(), 300)).append("\n");
         if (req.askingPrice() != null)
             sb.append("Asking Price: $").append(String.format("%,.0f", req.askingPrice())).append("\n");
         if (req.estimatedRepairs() != null)
             sb.append("Estimated Repairs: $").append(String.format("%,.0f", req.estimatedRepairs())).append("\n");
         if (req.notes() != null && !req.notes().isBlank())
-            sb.append("Notes: ").append(req.notes()).append("\n");
+            sb.append("Notes: ").append(LlmUtils.sanitizeText(req.notes(), MAX_TEXT_CHARS)).append("\n");
         return sb.isEmpty() ? "No property context provided — infer from documents." : sb.toString().trim();
     }
 
@@ -181,15 +196,37 @@ public class DealAnalyzerOrchestrator {
 
     private String nullableString(JsonNode node, String field) {
         JsonNode n = node.path(field);
-        return (n.isNull() || n.isMissingNode()) ? null : n.asText(null);
+        return (n.isNull() || n.isMissingNode()) ? null : LlmUtils.sanitizeText(n.asText(null), MAX_TEXT_CHARS);
     }
 
     private List<String> parseStringList(JsonNode node) {
         List<String> result = new ArrayList<>();
-        if (node.isArray()) node.forEach(item -> result.add(item.asText()));
+        if (node.isArray()) {
+            int count = 0;
+            for (JsonNode item : node) {
+                if (count++ >= MAX_LIST_ITEMS) {
+                    break;
+                }
+                String value = LlmUtils.sanitizeText(item.asText(null), MAX_LIST_ITEM_CHARS);
+                if (!value.isBlank()) {
+                    result.add(value);
+                }
+            }
+        }
         return result;
     }
 
+    private String normalizeVerdict(String value) {
+        return LlmUtils.normalizeChoice(value, "PASS", "STRONG_BUY", "BUY", "MARGINAL", "PASS");
+    }
+
+    private String normalizeStrategy(String value) {
+        return LlmUtils.normalizeChoice(value, "UNKNOWN", "FIX_AND_FLIP", "RENTAL", "WHOLESALE", "UNKNOWN");
+    }
+
+    private String normalizeFramework(String value) {
+        return LlmUtils.normalizeChoice(value, "QUALITATIVE", "70_PERCENT_RULE", "CAP_RATE", "CASH_ON_CASH", "QUALITATIVE");
+    }
+
     private static String stripMarkdownFences(String text) { return LlmUtils.stripMarkdownFences(text); }
-    private static String truncate(String text, int maxChars) { return LlmUtils.truncate(text, maxChars); }
 }

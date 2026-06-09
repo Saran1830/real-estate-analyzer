@@ -1,5 +1,6 @@
 package com.compliance.agent.service;
 
+import com.compliance.agent.util.LlmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -10,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -38,19 +38,19 @@ public class LangSmithService {
     }
 
     public String startRun(String name, String runType, Map<String, Object> inputs, String parentRunId) {
-        if (apiKey.isBlank()) return null;
+        if (apiKey.isBlank() || baseUrl == null || baseUrl.isBlank()) return null;
         String runId = UUID.randomUUID().toString();
         try {
             Map<String, Object> body = buildRunBody(runId, name, runType, inputs, parentRunId);
             post("/runs", body);
         } catch (Exception e) {
-            log.warn("LangSmith startRun failed: {}", e.getMessage());
+            log.warn("LangSmith startRun failed: {}", LlmUtils.sanitizeForLog(e.getMessage(), 200));
         }
         return runId;
     }
 
     public void endRun(String runId, Map<String, Object> outputs, String error) {
-        if (apiKey.isBlank() || runId == null) return;
+        if (apiKey.isBlank() || runId == null || baseUrl == null || baseUrl.isBlank()) return;
         try {
             Map<String, Object> body;
             if (error != null) {
@@ -62,13 +62,13 @@ public class LangSmithService {
             }
             patch("/runs/" + runId, body);
         } catch (Exception e) {
-            log.warn("LangSmith endRun failed: {}", e.getMessage());
+            log.warn("LangSmith endRun failed: {}", LlmUtils.sanitizeForLog(e.getMessage(), 200));
         }
     }
 
     private void post(String path, @NonNull Map<String, Object> body) {
         webClient.post()
-                .uri(Objects.requireNonNull(baseUrl + path))
+                .uri(baseUrl + path)
                 .header("x-api-key", apiKey)
                 .header("Content-Type", "application/json")
                 .body(BodyInserters.fromValue(body))
@@ -77,13 +77,13 @@ public class LangSmithService {
                 .subscribe(
                         r -> log.debug("LangSmith POST {}: ok", path),
                         e -> log.warn("LangSmith POST {} failed ({}): {}", path,
-                                e.getClass().getSimpleName(), e.getMessage())
+                                e.getClass().getSimpleName(), LlmUtils.sanitizeForLog(e.getMessage(), 200))
                 );
     }
 
     private void patch(String path, @NonNull Map<String, Object> body) {
         webClient.patch()
-                .uri(Objects.requireNonNull(baseUrl + path))
+                .uri(baseUrl + path)
                 .header("x-api-key", apiKey)
                 .header("Content-Type", "application/json")
                 .body(BodyInserters.fromValue(body))
@@ -92,7 +92,7 @@ public class LangSmithService {
                 .subscribe(
                         r -> log.debug("LangSmith PATCH {}: ok", path),
                         e -> log.warn("LangSmith PATCH {} failed ({}): {}", path,
-                                e.getClass().getSimpleName(), e.getMessage())
+                                e.getClass().getSimpleName(), LlmUtils.sanitizeForLog(e.getMessage(), 200))
                 );
     }
 

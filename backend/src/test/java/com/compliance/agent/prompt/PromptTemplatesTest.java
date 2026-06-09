@@ -37,6 +37,14 @@ class PromptTemplatesTest {
         assertThat(PromptTemplates.ANALYZE_PROMPT.toLowerCase()).contains("json");
     }
 
+    @Test
+    void promptsCallOutUntrustedContent() {
+        assertThat(PromptTemplates.GUARDRAIL_PROMPT.toLowerCase()).contains("untrusted");
+        assertThat(PromptTemplates.ANALYZE_PROMPT.toLowerCase()).contains("untrusted");
+        assertThat(PromptTemplates.QA_PROMPT.toLowerCase()).contains("untrusted");
+        assertThat(DealPromptTemplates.DEAL_ANALYSIS_PROMPT.toLowerCase()).contains("untrusted");
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "wholesale_purchase_agreement",

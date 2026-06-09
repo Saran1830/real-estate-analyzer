@@ -1,5 +1,7 @@
 ragas==0.2.15
 langchain-openai>=0.1.22
+langchain-core>=0.2.0
+langchain-community>=0.2.0
 datasets>=2.20.0
 numpy>=2.1.0
 requests>=2.32.3

@@ -1,6 +1,7 @@
 package com.compliance.agent.controller;
 
 import com.compliance.agent.agent.ComplianceAgentOrchestrator;
+import com.compliance.agent.config.SecurityConfig;
 import com.compliance.agent.model.Models.*;
 import com.compliance.agent.service.ConversationMemoryService;
 import com.compliance.agent.service.RagService;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ComplianceController.class)
+@Import(SecurityConfig.class)
 class ComplianceControllerTest {
 
     // Helpers: wrap static constants and methods whose return type Eclipse treats as
@@ -78,6 +81,17 @@ class ComplianceControllerTest {
     }
 
     @Test
+    void analyze_malformedJsonReturns400() throws Exception {
+        mockMvc.perform(post("/api/compliance/analyze")
+                        .contentType(JSON)
+                        .content("{\"documentText\":\"unterminated"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("BAD_REQUEST"));
+
+        verifyNoInteractions(orchestrator);
+    }
+
+    @Test
     void analyze_tenantIdFromHeaderWhenNotInBody() throws Exception {
         AnalyzeResponse stub = new AnalyzeResponse("s1", "LOW", "OK.", List.of(), List.of());
         when(orchestrator.orchestrateAnalysis(anyString(), anyString(), eq("header-tenant")))
@@ -105,6 +119,17 @@ class ComplianceControllerTest {
                 .andExpect(status().isOk());
 
         verify(orchestrator).orchestrateAnalysis("text", "nda", "body-tenant");
+    }
+
+    @Test
+    void analyze_invalidTenantHeader_returns400() throws Exception {
+        mockMvc.perform(post("/api/compliance/analyze")
+                        .contentType(JSON)
+                        .header("X-Tenant-ID", "tenant with spaces")
+                        .content(json(new AnalyzeRequest("Contract text here.", "nda", null))))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(orchestrator);
     }
 
     @Test
@@ -156,6 +181,16 @@ class ComplianceControllerTest {
         verifyNoInteractions(orchestrator);
     }
 
+    @Test
+    void ask_invalidSessionId_returns400() throws Exception {
+        mockMvc.perform(post("/api/compliance/ask")
+                        .contentType(JSON)
+                        .content(json(new AskRequest("session id with spaces", "What are payment terms?", null))))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(orchestrator);
+    }
+
     // ── DELETE /api/compliance/session/{id} ──────────────────────────────────
 
     @Test
@@ -165,5 +200,16 @@ class ComplianceControllerTest {
 
         verify(conversationMemoryService).clearSession("session-abc");
         verify(ragService).deleteSession("session-abc");
+    }
+
+    @Test
+    void clearSession_invalidSessionId_returns400() throws Exception {
+        String invalidSessionId = "a".repeat(65);
+
+        mockMvc.perform(delete("/api/compliance/session/" + invalidSessionId))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(conversationMemoryService);
+        verifyNoInteractions(ragService);
     }
 }

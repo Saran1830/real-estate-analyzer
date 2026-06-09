@@ -1,10 +1,172 @@
 {
   "mode": "reranked",
-  "timestamp": "2025-03-01T15:04:00Z",
+  "timestamp": "2026-06-09T17:57:06.867207+00:00",
   "scores": {
-    "faithfulness": 0.85,
-    "answer_relevancy": 0.83,
-    "evaluated_count": 20
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0,
+    "evaluated_count": 0
   },
-  "note": "Run with rag.rerank.enabled=true (default). Top-20 cosine retrieval followed by Cohere rerank-english-v3.0, top-5 re-ranked chunks passed to GPT-4o. 9-point faithfulness improvement driven by Cohere cross-encoder surfacing penalty and default clauses that cosine similarity ranked below topically broader chunks."
+  "test_cases": [
+    {
+      "id": "tc-001",
+      "question": "What happens if the buyer fails to close on the agreed date?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "If the buyer fails to close by the closing date, the seller's sole remedy is to retain the earnest money as liquidated damages. The seller cannot pursue additional legal remedies beyond keeping the earnest money.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-002",
+      "question": "Can the buyer assign this contract to someone else?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "Yes, the buyer can assign this agreement to any third party without needing the seller's consent. This is typical language in wholesale purchase agreements.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-003",
+      "question": "Does the seller provide any warranties about the property condition?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "No. The property is sold as-is, where-is, with all faults. The seller makes no representations or warranties regarding the condition of the property.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-004",
+      "question": "What is the interest rate on the loan?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The loan bears interest at 14% per annum, calculated as simple interest on the outstanding principal balance.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-005",
+      "question": "What are the consequences of defaulting on the loan?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "Upon default, the interest rate increases to 24% per annum and the lender may immediately foreclose on the collateral (the property secured by the deed of trust).",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-006",
+      "question": "Is there a prepayment penalty?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "There is no prepayment penalty, but prepayment does not reduce the minimum interest obligation of 3 months. So if the borrower repays early, they still owe at least 3 months of interest.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-007",
+      "question": "When is the origination fee paid and how much is it?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The origination fee is 3 points, which equals $2,250. It is deducted directly from the loan proceeds at the time of funding, so the borrower receives less than the full loan amount.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-008",
+      "question": "Is there an exclusivity period in the LOI?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "Yes. The seller agrees to a 30-day exclusivity period following execution of the LOI, during which the seller cannot solicit, entertain, or accept any other offers for the property.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-009",
+      "question": "Is the LOI legally binding?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "No. The LOI is explicitly stated to be a non-binding expression of intent. Neither party is legally obligated until a formal purchase agreement has been fully executed.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-010",
+      "question": "What financing contingency does the buyer have?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The offer is contingent on the buyer obtaining financing on terms satisfactory to the buyer at the buyer's sole discretion. This gives the buyer broad authority to walk away if they cannot secure acceptable financing.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-011",
+      "question": "How are disputes resolved under this agreement?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "Disputes are resolved through binding arbitration in Dallas County, Texas, governed by AAA Commercial Rules. This means the parties cannot sue in court \u00e2\u20ac\u201d they must use arbitration.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-012",
+      "question": "What type of deed will the seller provide?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The seller will convey title by a General Warranty Deed, free and clear of all liens and encumbrances except those specifically listed in the agreement.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-013",
+      "question": "How long does the buyer have to inspect the property?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The buyer has 10 calendar days from the execution date to inspect the property. During this period, the buyer can terminate the agreement for any reason and receive a full refund of the earnest money.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-014",
+      "question": "Who is personally liable for repaying the loan?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The principals (individual owners) of the borrowing entity personally guarantee repayment. This means personal assets are at risk, not just the business assets.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-015",
+      "question": "When does the loan mature and can it be extended?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The loan matures 6 months from the funding date. Extensions are not automatic \u00e2\u20ac\u201d any extension requires the lender's written consent.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-016",
+      "question": "How much is the earnest money and when is it due?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "The earnest money deposit is $5,000, due within 3 business days of executing the agreement.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-017",
+      "question": "What can the buyer do during the due diligence period?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "During the due diligence period, the buyer can inspect the property, review financial records, obtain financing commitments, and conduct environmental assessments.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-018",
+      "question": "Can the borrower place additional liens on the property?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "No. The borrower cannot place any additional liens on the property without obtaining the lender's prior written consent. Doing so would constitute a default.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-019",
+      "question": "What remedies does the buyer have if the seller fails to close?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "If the seller fails to close, the buyer can either seek specific performance (court order forcing the sale) or receive the earnest money returned plus $2,500 as liquidated damages.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    },
+    {
+      "id": "tc-020",
+      "question": "Are the LOI terms confidential?",
+      "answer": "",
+      "contexts": [],
+      "ground_truth": "Yes. The terms of the LOI are confidential and cannot be disclosed to third parties.",
+      "error": "HTTPConnectionPool(host='localhost', port=8080): Max retries exceeded with url: /api/compliance/analyze (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8080): Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it\"))"
+    }
+  ]
 }

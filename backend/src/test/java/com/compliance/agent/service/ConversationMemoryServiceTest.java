@@ -3,6 +3,8 @@ package com.compliance.agent.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ConversationMemoryServiceTest {
@@ -82,9 +84,10 @@ class ConversationMemoryServiceTest {
         }
 
         String history = service.getFormattedHistory("s1");
+        List<String> lines = history.lines().toList();
 
         // Earliest messages should have been evicted
-        assertThat(history).doesNotContain("Q1");
+        assertThat(lines).doesNotContain("User: Q1", "Assistant: A1");
         // Recent messages should still be there
         assertThat(history).contains("Q12");
     }

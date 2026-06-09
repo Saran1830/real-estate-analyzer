@@ -1,5 +1,6 @@
 package com.compliance.agent.service;
 
+import com.compliance.agent.util.LlmUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,13 @@ public class WebSearchService {
 
     public String searchMarketData(String address) {
         if (tavilyApiKey.isBlank() || address == null || address.isBlank()) {
-            log.debug("Web search skipped (keySet={}, address='{}')", !tavilyApiKey.isBlank(), address);
+            log.debug("Web search skipped (keySet={}, addressProvided={})",
+                    !tavilyApiKey.isBlank(), address != null && !address.isBlank());
             return "";
         }
         try {
-            String query = "real estate market trends comparable sales neighborhood " + address;
+            String query = "real estate market trends comparable sales neighborhood "
+                    + LlmUtils.sanitizeForLog(address, 200);
             TavilyRequest request = new TavilyRequest(tavilyApiKey, query, "basic", 3);
 
             TavilyResponse response = webClient.post()
@@ -47,14 +50,16 @@ public class WebSearchService {
             if (response == null || response.results() == null || response.results().isEmpty()) return "";
 
             return response.results().stream()
-                    .map(r -> "Source: " + r.title() + "\n" + r.content())
+                    .map(r -> "Source: " + LlmUtils.sanitizeText(r.title(), 200)
+                            + "\n" + LlmUtils.sanitizeText(r.content(), 2_000))
                     .collect(Collectors.joining("\n\n"));
 
         } catch (WebClientResponseException e) {
             log.warn("Tavily HTTP {} {}: returning empty market data", e.getStatusCode().value(), e.getStatusText());
             return "";
         } catch (Exception e) {
-            log.warn("Web search failed for '{}' ({}): {}", address, e.getClass().getSimpleName(), e.getMessage());
+            log.warn("Web search failed ({}): {}",
+                    e.getClass().getSimpleName(), LlmUtils.sanitizeForLog(e.getMessage(), 200));
             return "";
         }
     }

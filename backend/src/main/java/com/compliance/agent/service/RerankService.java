@@ -5,23 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
 public class RerankService {
 
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     @Value("${cohere.api.key:}")
     private String cohereApiKey;
@@ -35,36 +34,48 @@ public class RerankService {
     @Value("${rag.rerank.enabled}")
     private boolean rerankEnabled;
 
-    public RerankService(WebClient webClient) {
-        this.webClient = webClient;
+    public RerankService(@Qualifier("rerankRestClient") RestClient restClient) {
+        this.restClient = restClient;
     }
 
     public List<RankedMatch> rerank(String query, List<EmbeddingMatch<TextSegment>> candidates, int topN) {
-        if (!rerankEnabled || cohereApiKey.isBlank()) {
-            log.debug("Rerank skipped (enabled={}, keySet={}); using top-N cosine", rerankEnabled, !cohereApiKey.isBlank());
-            return toRankedFallback(candidates, topN);
+        if (query == null || query.isBlank()) {
+            throw new IllegalArgumentException("query must not be blank");
+        }
+        if (candidates == null) {
+            throw new IllegalArgumentException("candidates must not be null");
+        }
+        if (candidates.isEmpty() || topN <= 0) {
+            return List.of();
+        }
+
+        int requestedTopN = Math.min(topN, candidates.size());
+        boolean baseUrlConfigured = cohereBaseUrl != null && !cohereBaseUrl.isBlank();
+
+        if (!rerankEnabled || cohereApiKey.isBlank() || cohereModel == null || cohereModel.isBlank() || !baseUrlConfigured) {
+            log.debug("Rerank skipped (enabled={}, keySet={}, modelSet={}, baseUrlSet={}); using top-N cosine",
+                    rerankEnabled, !cohereApiKey.isBlank(), cohereModel != null && !cohereModel.isBlank(), baseUrlConfigured);
+            return toRankedFallback(candidates, requestedTopN);
         }
 
         List<String> docs = candidates.stream()
-                .map(m -> m.embedded().text())
+                .map(m -> com.compliance.agent.util.LlmUtils.sanitizeText(m.embedded().text(), 4_000))
                 .toList();
 
-        CohereRequest cohereRequest = new CohereRequest(cohereModel, query, docs, topN);
+        CohereRequest cohereRequest = new CohereRequest(cohereModel, query, docs, requestedTopN);
 
         try {
-            CohereRerankResponse response = webClient.post()
-                    .uri(Objects.requireNonNull(cohereBaseUrl))
+            CohereRerankResponse response = restClient.post()
+                    .uri(cohereBaseUrl)
                     .header("Authorization", "Bearer " + cohereApiKey)
-                    .header("Content-Type", "application/json")
-                    .body(BodyInserters.fromValue(cohereRequest))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(cohereRequest)
                     .retrieve()
-                    .bodyToMono(CohereRerankResponse.class)
-                    .timeout(Duration.ofSeconds(10))
-                    .block();
+                    .body(CohereRerankResponse.class);
 
             if (response == null || response.results() == null || response.results().isEmpty()) {
                 log.warn("Empty Cohere response; falling back to cosine ranking");
-                return toRankedFallback(candidates, topN);
+                return toRankedFallback(candidates, requestedTopN);
             }
 
             List<RankedMatch> ranked = new ArrayList<>();
@@ -78,25 +89,32 @@ public class RerankService {
                 ranked.add(new RankedMatch(original, result.index(), original.score(), result.relevanceScore()));
             }
             ranked.sort(Comparator.comparingDouble(RankedMatch::rerankScore).reversed());
-            log.debug("Reranked {} candidates to top-{}", candidates.size(), topN);
-            return ranked;
+            log.debug("Reranked {} candidates to top-{}", candidates.size(), requestedTopN);
+            return ranked.stream().limit(requestedTopN).toList();
 
-        } catch (WebClientResponseException e) {
+        } catch (RestClientResponseException e) {
             log.warn("Cohere rerank HTTP {} {}: falling back to cosine ranking",
                     e.getStatusCode().value(), e.getStatusText());
-            return toRankedFallback(candidates, topN);
+            return toRankedFallback(candidates, requestedTopN);
         } catch (Exception e) {
             log.warn("Cohere rerank failed ({}): {}; falling back to cosine ranking",
-                    e.getClass().getSimpleName(), e.getMessage());
-            return toRankedFallback(candidates, topN);
+                    e.getClass().getSimpleName(), com.compliance.agent.util.LlmUtils.sanitizeForLog(e.getMessage(), 200));
+            return toRankedFallback(candidates, requestedTopN);
         }
     }
 
     private List<RankedMatch> toRankedFallback(List<EmbeddingMatch<TextSegment>> candidates, int topN) {
-        return candidates.stream()
-                .limit(topN)
-                .map(m -> new RankedMatch(m, candidates.indexOf(m), m.score(), m.score()))
-                .toList();
+        if (candidates == null || candidates.isEmpty() || topN <= 0) {
+            return List.of();
+        }
+
+        int limit = Math.min(topN, candidates.size());
+        List<RankedMatch> ranked = new ArrayList<>(limit);
+        for (int i = 0; i < limit; i++) {
+            EmbeddingMatch<TextSegment> match = candidates.get(i);
+            ranked.add(new RankedMatch(match, i, match.score(), match.score()));
+        }
+        return ranked;
     }
 
     public record RankedMatch(

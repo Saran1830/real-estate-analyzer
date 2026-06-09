@@ -379,48 +379,6 @@ Results are written to `baseline_results.json` and `reranked_results.json`.
 
 ---
 
-## Architecture Decision Records
-
-### ADR-001: Two-Stage RAG (Retrieve + Re-rank)
-**Decision:** Retrieve top-20 by cosine similarity, then re-rank to top-5 with Cohere cross-encoder.
-
-**Why:** Cosine similarity is a bi-encoder approach — query and document are embedded independently. This is fast but misses joint semantic relationships. A cross-encoder reads both together, catching cases like a query about "default consequences" retrieving a "closing procedures" chunk instead of the "default remedies" section.
-
-**Evidence:** RAGAS faithfulness improved from 0.76 → 0.85 on our 25-pair eval suite.
-
-**Trade-off:** ~200-400ms latency per Q&A request. Mitigated by graceful fallback to cosine if Cohere is unavailable.
-
-### ADR-002: Provider-Agnostic LLM via OpenAI-Compatible API
-**Decision:** Use `OpenAiChatModel` with a configurable `baseUrl` rather than provider-specific SDKs.
-
-**Why:** Groq, Mistral, Anyscale, and others all expose OpenAI-compatible endpoints. One abstraction layer covers all of them. Switching providers requires changing two env vars, not code.
-
-**Result:** The app runs entirely free on Groq + Nomic + Cohere with zero code changes from the OpenAI configuration.
-
-### ADR-003: Per-Session ChromaDB Collections
-**Decision:** Each analysis session creates a new ChromaDB collection named `compliance_{sessionId}`.
-
-**Why:** Tenant isolation with zero shared state. Multiple users can analyze documents simultaneously without retrieval bleed-through. Collections are deleted when sessions end.
-
-**Trade-off:** Collection creation overhead (~50ms). Acceptable for this use case.
-
-### ADR-004: In-Process Conversation Memory
-**Decision:** Use LangChain4j `MessageWindowChatMemory` (last 10 turns, in-process) instead of external store.
-
-**Why:** Compliance review is inherently multi-turn — users follow up on specific clauses. Without memory, every question requires re-stating context. In-process storage is zero-latency and requires no infrastructure.
-
-**Production upgrade path:** Replace with Redis-backed memory with 24-hour TTL for horizontal scaling.
-
-### ADR-005: Deal Framework Auto-Selection
-**Decision:** Let the LLM infer the investment strategy and apply the appropriate financial framework.
-
-**Why:** Forcing users to select a framework creates friction and errors (a buyer might not know whether they're doing a flip or rental until they see the numbers). The LLM infers strategy from document language — "as-is sale", "assignment", "rental income" — and applies the matching framework.
-
-### ADR-006: Async LangSmith Traces
-**Decision:** All LangSmith API calls use WebFlux `subscribe()` (fire-and-forget) rather than blocking calls.
-
-**Why:** Observability must not slow down the critical path. If LangSmith is slow or down, the user's request completes normally and the trace is simply lost. This is the right trade-off for optional telemetry.
-
 ---
 
 ## Project Structure
